@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1002378413249",
+    "project_id": "maharajenterprise-92996",
+    "storage_bucket": "maharajenterprise-92996.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1002378413249:android:691c9513f3dec761660040",
+        "android_client_info": {
+          "package_name": "com.indianheartbeat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1002378413249-u6o9mnel8nh284epa96cb8igb6237n8n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.indianheartbeat",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1002378413249-okqm8upkpmsqduvuscefhc3fai0mk4i8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqinGTCw1_cHwoLnoDdSSiekkcQL3sm9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1002378413249-okqm8upkpmsqduvuscefhc3fai0mk4i8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
