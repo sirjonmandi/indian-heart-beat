@@ -1,5 +1,5 @@
 // ===============================================
-// CART ITEM COMPONENT
+// CART ITEM COMPONENT — Redesigned
 // ===============================================
 
 import { Colors } from '@/styles/colors';
@@ -15,14 +15,16 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export interface CartItemData {
   id: string;
+  cartItemKey: string;
   variantId?: string;
   name: string;
   brand: string;
   volume: string;
-  image:string[];
+  image: string[];
   price: number;
   originalPrice?: number;
   quantity: number;
+  rating?: number;
   category: string;
 }
 
@@ -32,29 +34,10 @@ interface CartItemProps {
   onRemove: (cartItemKey: string) => void;
 }
 
-const CartItem: React.FC<CartItemProps> = ({
-  item,
-  onQuantityChange,
-  onRemove
-}) => {
-  const renderProductImage = () => {
-    if (Array.isArray(item.image) && item.image.length > 0) {
-      return (
-        <>
-          <Image source={{uri: item.image[0]}} style={{height:60, width:60, borderRadius:8}} />
-        </>
-      );
-    } else {
-      return (
-        <View style={styles.beerContainer}>
-          <Image source={require('../../../assets/images/app_logo.png')} style={{height:60, width:60, borderRadius:8}} />
-        </View>
-      );
-    }
+const ORANGE = Colors.primaryBg; // primary accent colour — matches the + button and star in the screenshot
 
-  };
-
-  const handleQuantityDecrease = () => {
+const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove }) => {
+  const handleDecrease = () => {
     if (item.quantity > 1) {
       onQuantityChange(item.cartItemKey, item.quantity - 1);
     } else {
@@ -62,189 +45,173 @@ const CartItem: React.FC<CartItemProps> = ({
     }
   };
 
-  const handleQuantityIncrease = () => {
+  const handleIncrease = () => {
     onQuantityChange(item.cartItemKey, item.quantity + 1);
   };
 
+  const imageSource =
+    Array.isArray(item.image) && item.image.length > 0
+      ? item.image[0]
+      : require('../../../assets/images/app_logo.png');
+    // Array.isArray(item.image) && item.image.length > 0
+    //   ? { uri: item.image[0] }
+    //   : require('../../../assets/images/app_logo.png');
+
   return (
-    <View style={styles.cartItem}>
-      <View style={styles.productImageContainer}>
-        {renderProductImage()}
-      </View>
-      
-      <View style={styles.productDetails}>
-        <Text style={styles.productName} numberOfLines={2}>
-          {item.name}
-        </Text>
-        <Text style={styles.productVolume}>{item.volume}</Text>
-        
-        <View style={styles.priceRow}>
-          <Text style={styles.currentPrice}>₹ {item.price}</Text>
-          {item.originalPrice && (
-            <Text style={styles.originalPrice}>₹ {item.originalPrice}</Text>
-          )}
+    <View style={styles.row}>
+      {/* ── Left: square food image ── */}
+      <Image source={imageSource} style={styles.image} resizeMode="cover" />
+
+      {/* ── Middle: name / brand / price / stepper ── */}
+      <View style={styles.middle}>
+        {/* top row: name + rating */}
+        <View style={styles.nameRow}>
+          <Text style={styles.name} numberOfLines={1}>
+            {item.name}
+          </Text>
+          {/* <View style={styles.ratingPill}>
+            <Icon name="star" size={13} color={ORANGE} />
+            <Text style={styles.ratingText}>{item.rating ?? 4.5}</Text>
+          </View> */}
         </View>
-        
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity 
-            style={styles.quantityButton}
-            onPress={handleQuantityDecrease}
-          >
-            <Icon 
-              name={item.quantity === 1 ? "delete" : "remove"} 
-              size={16} 
-              color={item.quantity === 1 ? "#FF4444" : "#4CAF50"} 
-            />
-          </TouchableOpacity>
+
+        {/* brand / subtitle */}
+        {/* <Text style={styles.brand}>By {item.brand}</Text> */}
+        <View style={{ height: 10 }} />
           
-          <Text style={styles.quantityText}>{item.quantity}</Text>
-          
-          <TouchableOpacity 
-            style={styles.quantityButton}
-            onPress={handleQuantityIncrease}
-          >
-            <Icon name="add" size={16} color="#4CAF50" />
-          </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* price */}
+          <Text style={styles.price}>₹ {item.price.toFixed(2)}</Text>
+
+          {/* stepper */}
+          <View style={styles.stepper}>
+            {/* minus — plain circle outline */}
+            <TouchableOpacity style={styles.minusBtn} onPress={handleDecrease} activeOpacity={0.7}>
+              <Icon
+                name={item.quantity === 1 ? 'delete-outline' : 'remove'}
+                size={16}
+                color={item.quantity === 1 ? Colors.error : '#555'}
+              />
+            </TouchableOpacity>
+
+            <Text style={styles.qty}>{item.quantity}</Text>
+
+            {/* plus — filled orange circle */}
+            <TouchableOpacity style={styles.plusBtn} onPress={handleIncrease} activeOpacity={0.8}>
+              <Icon name="add" size={16} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      
-      <View style={styles.rightSection}>
-        <Text style={styles.totalPrice}>₹ {item.price * item.quantity}</Text>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  cartItem: {
+  row: {
     flexDirection: 'row',
-    backgroundColor: Colors.backgroundSecondary,
-    padding: 16,
-    marginHorizontal: 16,
-    marginTop:14,
-    marginVertical: 4,
-    borderRadius: 8,
-    // borderColor:'#e5383b',
-    // borderBottomWidth:2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    alignItems: 'flex-start',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderStyle: 'dashed',
+    borderBottomColor: '#EFEFEF',
   },
-  productImageContainer: {
-    width: 60,
-    height: 60,
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
+
+  // ── Image ──────────────────────────────────────
+  image: {
+    width: 110,
+    height: 100,
+    borderRadius: 10,
+    marginRight: 14,
+    backgroundColor: '#F2F2F2',
   },
-  whiskeyContainer: {
-    position: 'relative',
-    width: 40,
-    height: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  whiskeyBottle: {
-    width: 25,
-    height: 60,
-    backgroundColor: '#2C1810',
-    borderRadius: 4,
-  },
-  whiskeyLabel: {
-    width: 20,
-    height: 15,
-    backgroundColor: '#D4AF37',
-    borderRadius: 2,
-    position: 'absolute',
-    top: 20,
-  },
-  beerContainer: {
-    width: 40,
-    height: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  beerBottle: {
-    width: 20,
-    height: 55,
-    backgroundColor: '#8B4513',
-    borderRadius: 3,
-  },
-  beerLabel: {
-    width: 15,
-    height: 25,
-    backgroundColor: '#228B22',
-    borderRadius: 2,
-    position: 'absolute',
-    top: 15,
-  },
-  productDetails: {
+
+  // ── Middle column ──────────────────────────────
+  middle: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
-  productName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.textWhite,
-    marginBottom: 4,
-    lineHeight: 18,
-  },
-  productVolume: {
-    fontSize: 12,
-    color: Colors.textWhite,
-    marginBottom: 8,
-  },
-  priceRow: {
+
+  nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    justifyContent: 'space-between',
+    marginBottom: 2,
   },
-  currentPrice: {
+
+  name: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.textWhite,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    flex: 1,
     marginRight: 8,
   },
-  originalPrice: {
-    fontSize: 12,
-    color: '#999',
-    textDecorationLine: 'line-through',
-  },
-  quantityContainer: {
+
+  ratingPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-    borderRadius: 6,
-    paddingHorizontal: 4,
+    gap: 2,
   },
-  quantityButton: {
-    width: 28,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  quantityText: {
-    marginHorizontal: 12,
-    fontSize: 14,
+
+  ratingText: {
+    fontSize: 13,
     fontWeight: '600',
-    color: Colors.textWhite,
-    minWidth: 20,
+    color: ORANGE,
+  },
+
+  brand: {
+    fontSize: 13,
+    color: '#9E9E9E',
+    marginBottom: 8,
+  },
+
+  price: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 10,
+  },
+
+  // ── Stepper ────────────────────────────────────
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 0,
+  },
+
+  minusBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#DDD',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  qty: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    minWidth: 28,
     textAlign: 'center',
   },
-  rightSection: {
+
+  plusBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: ORANGE,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  totalPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.textWhite,
+    shadowColor: ORANGE,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 4,
   },
 });
 

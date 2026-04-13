@@ -70,7 +70,7 @@ const CouponSection: React.FC<CouponSectionProps> = ({
           onPress={handleApplyCoupon}
           disabled={!couponCode.trim()}
         >
-          <Text style={styles.claimButtonText}>CLAIM</Text>
+          <Text style={styles.claimButtonText}>APPLY</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -88,23 +88,27 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    // elevation: 2,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 12,
   },
   couponInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#f7f6f9ff',
+    borderRadius:50,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
   },
   couponInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 6,
+    // borderWidth: 1,
+    // borderColor: '#E0E0E0',
+    borderRadius: 50,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
@@ -112,10 +116,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   claimButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 6,
+    borderRadius: 50,
+    width:120,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   claimButtonDisabled: {
     backgroundColor: '#CCCCCC',

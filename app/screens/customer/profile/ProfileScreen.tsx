@@ -91,24 +91,24 @@ const ProfileScreen: React.FC = () => {
           color: Colors.btnColorPrimary,
           textColor: Colors.btnTextPrimary,
           onPress: async () =>{
-            await authAPI.logout()
-            .then(async(res:ApiResponse)=>{
+            // await authAPI.logout()
+            // .then(async(res:ApiResponse)=>{
               await AsyncStorage.removeItem('authToken');
               dispatch(logout());
-            })
-            .catch((error:ApiError)=>{
-              console.error(error);
-              // Alert.alert('Logout Error', error.message || 'Failed to logout. Please try again.');
-              showAlert({
-                title:'Logout Error',
-                message:error.message || 'Failed to logout. Please try again.',
-                buttons:[{
-                  text:'ok',
-                  color:Colors.btnColorPrimary,
-                  textColor:Colors.btnTextPrimary,
-                }]
-              })
-            })
+            // })
+            // .catch((error:ApiError)=>{
+            //   console.error(error);
+            //   // Alert.alert('Logout Error', error.message || 'Failed to logout. Please try again.');
+            //   showAlert({
+            //     title:'Logout Error',
+            //     message:error.message || 'Failed to logout. Please try again.',
+            //     buttons:[{
+            //       text:'ok',
+            //       color:Colors.btnColorPrimary,
+            //       textColor:Colors.btnTextPrimary,
+            //     }]
+            //   })
+            // })
           }
         }
       ]

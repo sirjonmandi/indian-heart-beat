@@ -2,7 +2,36 @@ import { createSlice,createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { CartState, CartItem } from '../types';
 import { customerAPI } from '@/services/api/customerAPI';
 const initialState: CartState = {
-  items: [],
+  items: [{
+        id: '1',
+        name: 'Chicken Biryani',
+        price: 449,
+        quantity: 2,
+        image: [require('../../../assets/foods/indian.jpg')],
+        variantId: 'v1',
+        cartItemKey:'c1',
+        variantDetails: {
+          size: 'M',
+          color: 'Red',
+          material: 'Cotton',
+          style: 'Casual',
+        },
+      },
+      {
+        id: '2',
+        name: 'Momos',
+        price: 149,
+        quantity: 1,
+        image: [require('../../../assets/foods/chinese.jpg')],
+        variantId: 'v2',
+        cartItemKey:'c2',
+        variantDetails: {
+          size: 'L',
+          color: 'Blue',
+          material: 'Polyester',
+          style: 'Formal',
+        },
+      },],
   itemsCount:0,
   totalItems: 0,
   totalAmount: 0,

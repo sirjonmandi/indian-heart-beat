@@ -9,6 +9,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -28,7 +29,7 @@ const CartHeader: React.FC<CartHeaderProps> = ({
   const isDeliveryTimeAvailable = deliveryTime ? true : false;
   return (
     <LinearGradient
-      colors={[Colors.background, Colors.background]}
+      colors={[Colors.backgroundSecondary, Colors.backgroundSecondary]}
       style={styles.headerGradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -36,22 +37,25 @@ const CartHeader: React.FC<CartHeaderProps> = ({
       <SafeAreaView>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-            <Icon name="arrow-back" size={20} color={Colors.textColor} />
+            <Icon name="keyboard-arrow-left" size={20} color={Colors.black} />
           </TouchableOpacity>
           
           <View style={styles.titleContainer}>
-            <Text style={styles.pageTitle}>My Cart</Text>
+            <Text style={styles.pageTitle}>Cart</Text>
           </View>
           
-          <TouchableOpacity style={styles.profileButton} onPress={onProfilePress}>
+          {/* <TouchableOpacity style={styles.profileButton} onPress={onProfilePress}>
             <View style={styles.profileIcon}>
               <Icon name="person" size={20} color={Colors.textColor} />
             </View>
+          </TouchableOpacity> */}
+          <TouchableOpacity style={styles.backButton} onPress={()=> Alert.alert('Notification', 'This feature is coming soon!')}>
+              <Icon name="more-vert" size={20} color={Colors.black} />
           </TouchableOpacity>
         </View>
         { isDeliveryTimeAvailable ? (
           <View style={styles.deliveryInfo}>
-            <Text style={styles.cartTitle}>My Cart</Text>
+            <Text style={styles.cartTitle}>Cart</Text>
             <View style={styles.deliveryRow}>
               <Text style={styles.deliveryText}>Delivery by</Text>
               <Text style={styles.deliveryTime}>{deliveryTime}</Text>
@@ -70,6 +74,7 @@ const styles = StyleSheet.create({
   headerGradient: {
     paddingHorizontal: 16,
     paddingBottom: 16,
+    backgroundColor: Colors.backgroundSecondary,
   },
   headerContent: {
     flexDirection: 'row',
@@ -80,7 +85,13 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 4,
     marginRight: 8,
-    color: '#999',
+    color: '#1A1A1A',
+    backgroundColor: '#f7f6f9ff',
+    borderRadius: 50,
+    height:40,
+    width:40,
+    justifyContent:'center',
+    alignItems:'center',
   },
   titleContainer: {
     flex: 1,
@@ -89,7 +100,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#999',
+    color: Colors.black,
   },
   profileButton: {
     padding: 4,
@@ -108,7 +119,7 @@ const styles = StyleSheet.create({
   cartTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 4,
   },
   deliveryRow: {
@@ -117,7 +128,7 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontSize: 12,
-    color: Colors.textWhite,
+    color: Colors.black,
     marginRight: 4,
   },
   deliveryTime: {

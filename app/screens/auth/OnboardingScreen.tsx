@@ -15,9 +15,41 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Constants } from '../../utils/constants';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+// temp user data for testing and imports 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loginSuccess, setAuthenticated, setUserType } from '@/store/slices/authSlice';
+import { useDispatch } from 'react-redux';
+
+const user = {
+    id: 'user123',
+    firstName: 'John',
+    lastName: 'Doe',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '+1234567890',
+    dateOfBirth: '1990-01-01',
+    status: 'active',
+    ageVerificationStatus: 'verified',
+    isVerified: true,
+    ageVerified: true,
+    addresses: null,
+    deviceTokens: 'token_abc123',
+    preferences: {
+      notifications: true,
+      darkMode: false,
+      language: 'en',
+      currency: 'INR',
+    },
+  };
+const token = 'token_abc123';
+const userType = 'customer';
+
 const { width, height } = Dimensions.get('window');
 
 const OnboardingScreen: React.FC = () => {
+  const dispatch = useDispatch();
+
   const navigation = useNavigation();
 
   // Animated values
@@ -62,8 +94,26 @@ const OnboardingScreen: React.FC = () => {
     ]).start();
   }, []);
 
+  const setUserAuthData = async () => {
+    try {
+      // console.log('================ handleSuccessfulLogin ====================');
+      // console.log('Login Success:', JSON.stringify(user, null, 2));
+      // console.log('====================================');
+      await AsyncStorage.multiSet([
+        ['authToken', token],
+        ['user', JSON.stringify(user)],
+        ['userType', userType],
+      ]);
+      dispatch(setUserType(userType));
+      dispatch(setAuthenticated(true));
+      dispatch(loginSuccess({ user, token }));
+    } catch (error) {
+      console.error('Failed to save auth data:', error);
+    }
+  };
   const handleGetStarted = () => {
-    navigation.replace(Constants.SCREENS.LOGIN);
+    setUserAuthData();
+    // navigation.replace(Constants.SCREENS.LOGIN);
   };
 
   const chips = ['🍛 Biryani','🍕 Pizza', '🍜 Noodles', '🍔 Burgers', '🥗 Salads'];

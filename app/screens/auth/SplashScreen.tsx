@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: Colors.textWhite,
-    // marginBottom: 100,
+    marginBottom: 100,
   },
   footer: {
     position: 'absolute',

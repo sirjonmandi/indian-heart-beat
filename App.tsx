@@ -35,7 +35,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(Colors.black, true);
+      StatusBar.setBackgroundColor(Colors.primaryBg, true);
       StatusBar.setBarStyle('light-content', true);
     }
   });

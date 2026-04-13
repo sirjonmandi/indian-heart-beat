@@ -108,6 +108,7 @@ export const Constants = {
     CART: 'Cart',
     CART_TAB: 'CartTab',
     ORDERS_TAB: 'OrdersTab',
+    PROFILE_TAB: 'ProfileTab',
     
     // Product & Store Screens
     STORE_DETAIL: 'StoreDetail',

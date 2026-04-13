@@ -39,10 +39,10 @@ const CartScreen: React.FC = () => {
   const isFocused = useIsFocused();
 
   const {showAlert} = useAlert();
-  useEffect(()=>{
-    dispatch(getCart() as any);
-    getDeliverySlot();
-  },[dispatch,isFocused,scheduled])
+  // useEffect(()=>{
+  //   dispatch(getCart() as any);
+  //   getDeliverySlot();
+  // },[dispatch,isFocused,scheduled])
 
   const getDeliverySlot = () => {
       if(scheduled){
@@ -280,22 +280,6 @@ const CartScreen: React.FC = () => {
   };
 
   const handlePlaceOrder = () => {
-    // Alert.alert(
-    //   'Proceed to Payment',
-    //   `Total Amount: ₹${summary.total}`,
-    //   [
-    //     { text: 'Cancel', style: 'cancel' },
-    //     {
-    //       text: 'Continue',
-    //       onPress: () => {
-    //         navigation.navigate(Constants.SCREENS.PAYMENT, {
-    //           deliverySlot: deliverySlots,
-    //         });
-    //       }
-    //     }
-    //   ]
-    // );
-
     showAlert({
       title: 'Proceed to Payment',
       message: `Total Amount: ₹${summary.total}`,
@@ -363,10 +347,11 @@ const CartScreen: React.FC = () => {
       contentContainerStyle={styles.emptyCartContainer}
       refreshControl={
         <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={['#4CAF50']} // Android
-          tintColor="#4CAF50" // iOS
+          refreshing={false}
+          // refreshing={refreshing}
+          // onRefresh={onRefresh}
+          colors={[Colors.primaryBg]} // Android
+          tintColor={Colors.primaryBg} // iOS
           title="Pull to refresh" // iOS
           titleColor="#666" // iOS
         />
@@ -374,63 +359,7 @@ const CartScreen: React.FC = () => {
     >
     <View style={styles.emptyCartContainer}>
       <View style={styles.emptyCartContent}>
-        {/* <Text style={styles.emptyCartIcon}></Text> */}
-        {/* <Icon name="shopping-cart-checkout" size={80} color="#ffffff"/>
-        <Text style={styles.emptyCartTitle}>Your cart is empty</Text>
-        <Text style={styles.emptyCartSubtitle}>
-          Looks like you haven't added anything to your cart yet
-        </Text> */}
-        {/* <View
-          style={{
-            marginBottom: 40,
-          }}
-        >
-
-          <View
-            style={{
-              position: 'absolute',
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-              backgroundColor: '#ba181b',
-              opacity: 0.3,
-              transform: [{ scale: 1.3 }],
-            }}
-          />
-          <View
-            style={{
-              position: 'absolute',
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-              backgroundColor: '#ba181b',
-              opacity: 0.2,
-              transform: [{ scale: 1.5 }],
-            }}
-          />
-          
-
-          <View
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-              backgroundColor: '#ba181b',
-              alignItems: 'center',
-              justifyContent: 'center',
-              // iOS shadow
-              shadowColor: '#ba181b',
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.8,
-              shadowRadius: 20,
-              // Android shadow
-              elevation: 8,
-            }}
-          >
-            <Icon name={'shopping-bag'} size={60} color="#fff" />
-          </View>
-        </View> */}
-        <Icon name="shopping-bag" size={64} color={'#BDBDBD'} />
+        <Icon name="local-mall" size={64} color={'#BDBDBD'} />
         <Text style={styles.emptyCartTitle}>Your cart is empty</Text>
         <Text style={styles.emptyCartSubtitle}>
           Looks like you haven't added anything to your cart yet
@@ -439,7 +368,7 @@ const CartScreen: React.FC = () => {
           style={styles.startShoppingButton}
           onPress={handleStartShopping}
         >
-          <Text style={styles.startShoppingButtonText}>Start Shopping</Text>
+          <Text style={styles.startShoppingButtonText}>Continue Shopping</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -462,10 +391,11 @@ const CartScreen: React.FC = () => {
             contentContainerStyle={styles.scrollContent}
             refreshControl={
               <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={['#4CAF50']} // Android
-                tintColor="#4CAF50" // iOS
+                refreshing={false}
+                // refreshing={refreshing}
+                // onRefresh={onRefresh}
+                colors={[Colors.primaryBg]} // Android
+                tintColor={Colors.primaryBg} // iOS
                 title="Pull to refresh" // iOS
                 titleColor="#999" // iOS
               />
@@ -514,7 +444,7 @@ const CartScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSecondary,
   },
   content: {
     flex: 1,
@@ -533,7 +463,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 32,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSecondary,
   },
   emptyCartContent: {
     alignItems: 'center',
@@ -546,7 +476,7 @@ const styles = StyleSheet.create({
   emptyCartTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginTop:12,
     marginBottom: 8,
     textAlign: 'center',
@@ -559,11 +489,11 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   startShoppingButton: {
-    backgroundColor: '#e5383b',
+    backgroundColor: Colors.primaryBg,
     // backgroundColor: '#4CAF50',
     paddingHorizontal: 32,
     paddingVertical: 16,
-    borderRadius: 8,
+    borderRadius: 50,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: {

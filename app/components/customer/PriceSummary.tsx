@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    // elevation: 2,
   },
   sectionTitle: {
     fontSize: 16,
@@ -114,7 +114,8 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: Colors.textColor,
+    color: Colors.black,
+    fontWeight: '500',
   },
   summaryValue: {
     fontSize: 14,
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
   totalRow: {
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
+    borderStyle: 'dashed',
     paddingTop: 12,
     marginTop: 8,
     marginBottom: 16,
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
   },
   totalValue: {
     fontSize: 16,
