@@ -48,7 +48,7 @@ const ProfileStack = () => (
 
 // Custom Tab Bar Component with enhanced design
 const CustomTabBar = ({ state, descriptors, navigation }: any) => {
-  const { cartItemsCount = 2 } = useSelector((state: RootState) => state.cart);
+  const { itemsCount  } = useSelector((state: RootState) => state.cart);
   const dispatch = useDispatch();
   return (
     <View style={styles.tabBar}>
@@ -58,12 +58,8 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
         const isFocused = state.index === index;
 
         const onPress = () => {
-          if (route.name === Constants.SCREENS.ORDERS_TAB) 
-          {
-            Alert.alert('Notification', 'Screens yet to be implemented !');
-            return;
-          }
-          else if (route.name === Constants.SCREENS.PROFILE_TAB)
+          // else 
+          if (route.name === Constants.SCREENS.PROFILE_TAB)
           {
             Alert.alert('Notification', 'Screens yet to be implemented !',
               [
@@ -98,7 +94,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
           iconName = 'home';
         } else if (route.name === Constants.SCREENS.CART_TAB) {
           iconName = 'local-mall';
-          badgeCount = cartItemsCount;
+          badgeCount = itemsCount;
         } else if (route.name === Constants.SCREENS.ORDERS_TAB) {
           iconName = 'receipt';
         } else if (route.name === Constants.SCREENS.PROFILE_TAB) {

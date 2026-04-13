@@ -34,7 +34,7 @@ const user = {
     isVerified: true,
     ageVerified: true,
     addresses: null,
-    deviceTokens: 'token_abc123',
+    deviceTokens: '212|nBiSDoSnRpgTF0yaO7iD6l3vLgrbj8dESaXZ5epE4e4fbd44',
     preferences: {
       notifications: true,
       darkMode: false,
@@ -42,7 +42,7 @@ const user = {
       currency: 'INR',
     },
   };
-const token = 'token_abc123';
+const token = '212|nBiSDoSnRpgTF0yaO7iD6l3vLgrbj8dESaXZ5epE4e4fbd44';
 const userType = 'customer';
 
 const { width, height } = Dimensions.get('window');

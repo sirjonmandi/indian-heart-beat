@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getOrders } from '@store/slices/customerOrderSlice';
 import { useEffect, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
+import { CartHeader } from '@/components/customer';
 
 interface RootState {
   customerOrders: {
@@ -141,21 +142,21 @@ const OrderHistoryScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={GlobalStyles.container}>
-      {/* <Header
-       title="My Orders"
-       showBack
-       onBackPress={() => navigation.goBack()} /> */}
        <LinearGradient
-               colors={[Colors.background, Colors.background]}
+               colors={[Colors.backgroundSecondary, Colors.backgroundSecondary]}
                style={styles.header}
                start={{ x: 0, y: 0 }}
                end={{ x: 1, y: 1 }}
              >
-               <TouchableOpacity onPress={() => navigation.goBack()}>
-                 <Icon name="arrow-back" size={24} color={Colors.textColor} />
+               <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                 <Icon name="keyboard-arrow-left" size={24} color={Colors.black} />
                </TouchableOpacity>
                <Text style={styles.headerTitle}>My Orders</Text>
-               <View style={{ width: 24 }} />
+               <TouchableOpacity style={styles.profileButton} onPress={()=> navigation.navigate(Constants.SCREENS.PROFILE)}>
+                <View style={styles.profileIcon}>
+                  <Icon name="person" size={20} color={Colors.black} />
+                </View>
+              </TouchableOpacity>
         </LinearGradient>
           <FlatList
             data={orders}
@@ -167,15 +168,15 @@ const OrderHistoryScreen: React.FC = () => {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#4CAF50']} // Android
-                tintColor="#4CAF50" // iOS
+                colors={[Colors.primary]} // Android
+                tintColor={Colors.primary} // iOS
                 title="Pull to refresh" // iOS
                 titleColor="#666" // iOS
               />
             }
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Icon name="receipt-long" size={64} color={Colors.gray400} />
+                <Icon name="shopping-basket" size={64} color={Colors.gray400} />
                 <Text style={styles.emptyTitle}>No orders yet</Text>
                 <Text style={styles.emptySubtitle}>
                   Start shopping to see your orders here
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-    headerButton: {
+  headerButton: {
     padding: 8,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -208,23 +209,26 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textColor,
+    color: Colors.black,
     textAlign: 'center',
   },
   container: {
     padding: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSecondary,
   },
   orderCard: {
     backgroundColor: Colors.backgroundSecondary,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
+    borderWidth:1,
     borderRadius: 12,
+    borderStyle:'dashed',
+    borderColor:Colors.primaryBg,
     // shadowColor: '#999',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
+    // elevation: 3,
   },
   scrollContent: {
     paddingBottom: 16,
@@ -241,7 +245,7 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.textWhite,
+    color: Colors.black,
   },
   statusBadge: {
     paddingHorizontal: Spacing.sm,
@@ -257,7 +261,7 @@ const styles = StyleSheet.create({
   },
   orderInfo: {
     fontSize: Typography.fontSize.base,
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: Spacing.xs,
   },
   orderDate: {
@@ -283,14 +287,36 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.textWhite,
+    color: Colors.black,
     marginTop: Spacing.lg,
     marginBottom: Spacing.sm,
   },
   emptySubtitle: {
     fontSize: Typography.fontSize.base,
-    color: Colors.textColor,
+    color: Colors.black,
     textAlign: 'center',
+  },
+  backButton: {
+    padding: 4,
+    marginRight: 8,
+    color: Colors.black,
+    backgroundColor: '#f7f6f9ff',
+    borderRadius: 50,
+    height:40,
+    width:40,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+  profileButton: {
+    padding: 4,
+  },
+  profileIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f7f6f9ff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

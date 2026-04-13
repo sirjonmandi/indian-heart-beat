@@ -236,17 +236,19 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundSecondary,
     padding: 16,
     marginBottom: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
+    // borderRadius: 8,
+    borderBottomWidth: 1,
+    borderStyle: 'dashed',
+    borderBottomColor: '#EFEFEF',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    // elevation: 2,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 8,
   },
   complianceRow: {
@@ -255,7 +257,7 @@ const styles = StyleSheet.create({
   },
   complianceText: {
     fontSize: 12,
-    color: Colors.textColor,
+    color: Colors.black,
     marginLeft: 8,
     flex: 1,
     lineHeight: 16,
@@ -266,7 +268,7 @@ const styles = StyleSheet.create({
   },
   policyText: {
     fontSize: 12,
-    color: Colors.textColor,
+    color: Colors.black,
     marginLeft: 8,
   },
   deliveryRow: {
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontSize: 12,
-    color: Colors.textColor,
+    color: Colors.black,
     marginLeft: 8,
     flex: 1,
   },
@@ -310,7 +312,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 12,
   },
   modalCloseText: {

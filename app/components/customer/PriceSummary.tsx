@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 16,
   },
   summaryRow: {
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 14,
-    color: Colors.textWhite,
+    color: Colors.black,
     fontWeight: '500',
   },
   discountValue: {

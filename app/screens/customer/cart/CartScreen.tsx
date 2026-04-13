@@ -39,10 +39,10 @@ const CartScreen: React.FC = () => {
   const isFocused = useIsFocused();
 
   const {showAlert} = useAlert();
-  // useEffect(()=>{
-  //   dispatch(getCart() as any);
-  //   getDeliverySlot();
-  // },[dispatch,isFocused,scheduled])
+  useEffect(()=>{
+    dispatch(getCart() as any);
+    getDeliverySlot();
+  },[dispatch,isFocused,scheduled])
 
   const getDeliverySlot = () => {
       if(scheduled){
@@ -139,22 +139,6 @@ const CartScreen: React.FC = () => {
   };
 
   const handleRemoveItem = (cartItemKey:string) => {
-    // Alert.alert(
-    //   'Remove Item',
-    //   'Are you sure you want to remove this item from cart?',
-    //   [
-    //     { text: 'Cancel', style: 'cancel' },
-    //     {
-    //       text: 'Remove',
-    //       style: 'destructive',
-    //       onPress: () => {
-    //         // setCartItemsData(prevItems => prevItems.filter(item => item.id !== id));
-    //         dispatch(removeFromCart({ cartId: cartItemKey }));
-    //       }
-    //     }
-    //   ]
-    // );
-
     showAlert({
       title: 'Remove Item',
       message: 'Are you sure you want to remove this item from cart?',
@@ -257,22 +241,7 @@ const CartScreen: React.FC = () => {
           color: Colors.btnColorPrimary,
           textColor: Colors.btnTextPrimary,
           onPress: async () => {
-            // setAppliedCoupon(undefined);
-            // Alert.alert('Removed', 'Coupon removed successfully');
             await removeCouponMethod();
-            // setTimeout(() => {
-            //   showAlert({
-            //     title: 'Coupon Removed',
-            //     message: 'Coupon removed successfully',
-            //     buttons: [
-            //       {
-            //         text: 'OK',
-            //         color: Colors.btnColorPrimary,
-            //         textColor: Colors.btnTextPrimary,
-            //       }
-            //     ]
-            //   });
-            // }, 300);
           },
         }
       ]

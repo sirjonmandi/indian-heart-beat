@@ -13,6 +13,7 @@ import {
   StatusBar,
   PanResponder,
   Platform,
+  BackHandler,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 26,
-    color: '#1A1A1A',
+    color: Colors.black,
     lineHeight: 28,
     marginTop: -2,
   },
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: Colors.black,
     letterSpacing: -0.3,
   },
   restaurantName: {
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   driverName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.black,
   },
   driverId: {
     fontSize: 12,
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.black,
     marginBottom: 8,
   },
   description: {
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
   deliveryValue: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: Colors.black,
   },
   cartBar: {
     position: 'absolute',
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
     width: 140,
   },
   cartBtnText: {
-    color: '#1A1A1A',
+    color: Colors.black,
     fontWeight: '500',
     fontSize: 16,
     letterSpacing: 0.3,
@@ -418,24 +419,6 @@ const FoodItemModal: React.FC<FoodItemModalProps> = ({
     })
   ).current;
 
-  useEffect(() => {
-    if (visible) {
-      Animated.parallel([
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-          tension: 65,
-          friction: 11,
-        }),
-        Animated.timing(backdropOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [visible]);
-
   const closeModal = () => {
     Animated.parallel([
       Animated.timing(translateY, {
@@ -453,6 +436,24 @@ const FoodItemModal: React.FC<FoodItemModalProps> = ({
       translateY.setValue(MODAL_HEIGHT);
     });
   };
+
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 65,
+          friction: 11,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
 
   return (
     <Modal transparent visible={visible} animationType="none" statusBarTranslucent>

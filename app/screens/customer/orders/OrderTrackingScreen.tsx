@@ -252,7 +252,7 @@ const OrderTrackingScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       /> */}
       <LinearGradient
-              colors={[Colors.background, Colors.background]}
+              colors={[Colors.backgroundSecondary, Colors.backgroundSecondary]}
               style={styles.header}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textColor,
+    color: Colors.black,
     textAlign: 'center',
   },
   container: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: Spacing.sm,
   },
   estimatedTime: {
@@ -326,19 +326,23 @@ const styles = StyleSheet.create({
   },
   section: {
     backgroundColor: Colors.backgroundSecondary,
-    borderRadius: 12,
+    // borderRadius: 12,
     marginBottom: Spacing.lg,
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: 'hidden',
+    borderStyle:'dashed',
+    borderBottomColor:Colors.black,
+    // borderBottomColor:'#E0E0E0',
+    borderBottomWidth:1,
+    // shadowColor: Colors.shadow,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 3,
+    // overflow: 'hidden',
   },
   sectionTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.textWhite,
+    color: Colors.black,
     padding: Spacing.lg,
     paddingBottom: 0,
     marginBottom: Spacing.md,
@@ -386,7 +390,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
   },
   stepTitleCompleted: {
-    color: Colors.textWhite,
+    color: Colors.black,
   },
   stepTime: {
     fontSize: Typography.fontSize.sm,
@@ -410,7 +414,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: Spacing.xs,
   },
   productQuantity: {
@@ -420,7 +424,7 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.textWhite,
+    color: Colors.black,
   },
   addressContainer: {
     flexDirection: 'row',
@@ -439,7 +443,7 @@ const styles = StyleSheet.create({
   },
   addressText: {
     fontSize: Typography.fontSize.base,
-    color: Colors.textWhite,
+    color: Colors.black,
     lineHeight: 22,
     marginBottom: Spacing.xs,
   },
@@ -465,7 +469,7 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: Typography.fontSize.base,
-    color: Colors.textWhite,
+    color: Colors.black,
     fontWeight: Typography.fontWeight.semibold,
   },
   priceBreakdown: {
@@ -487,7 +491,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    color: Colors.textWhite,
+    color: Colors.black,
   },
   totalValue: {
     fontSize: Typography.fontSize.lg,

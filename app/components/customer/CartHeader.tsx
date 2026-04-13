@@ -44,14 +44,14 @@ const CartHeader: React.FC<CartHeaderProps> = ({
             <Text style={styles.pageTitle}>Cart</Text>
           </View>
           
-          {/* <TouchableOpacity style={styles.profileButton} onPress={onProfilePress}>
+          <TouchableOpacity style={styles.profileButton} onPress={onProfilePress}>
             <View style={styles.profileIcon}>
-              <Icon name="person" size={20} color={Colors.textColor} />
+              <Icon name="person" size={20} color={Colors.black} />
             </View>
-          </TouchableOpacity> */}
-          <TouchableOpacity style={styles.backButton} onPress={()=> Alert.alert('Notification', 'This feature is coming soon!')}>
-              <Icon name="more-vert" size={20} color={Colors.black} />
           </TouchableOpacity>
+          {/* <TouchableOpacity style={styles.backButton} onPress={()=> Alert.alert('Notification', 'This feature is coming soon!')}>
+              <Icon name="more-vert" size={20} color={Colors.black} />
+          </TouchableOpacity> */}
         </View>
         { isDeliveryTimeAvailable ? (
           <View style={styles.deliveryInfo}>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#2C2C2C',
+    backgroundColor: '#f7f6f9ff',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -10,20 +10,23 @@ import {
   Image,
   StatusBar,
   SafeAreaView,
-  FlatList,
   Dimensions,
   ImageBackground,
+  Alert,
+  BackHandler,
+  FlatList,
   Modal,
   KeyboardAvoidingView,
   Animated,
   Platform,
-  Alert,
 } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FoodItemModal from '@/components/common/FoodItemModal';
 import { useNavigation } from '@react-navigation/native';
 import { Constants } from '@/utils/constants';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 // Type definitions
 interface FoodItem {
@@ -137,6 +140,9 @@ export default function HomeScreen() {
   const [visible, setVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedItem, setSelectedItem] = useState<ModalItem | null>(null);
+  const { totalItems } = useSelector((state:RootState)=>{
+    return state.cart
+  })
   const navigation = useNavigation();
   const categories = [
     { image: require('../../../../assets/foods/salad.jpg'), label: 'Salads' },
@@ -173,6 +179,21 @@ export default function HomeScreen() {
     setVisible(true);
   };
 
+  const onCloseModal = () =>{
+    setVisible(false);
+  }
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (visible) {
+        e.preventDefault();
+        onCloseModal();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, visible]);
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
@@ -208,9 +229,11 @@ export default function HomeScreen() {
             >
               <Icon name='local-mall' size={20} color={DARK} style={styles.cartIcon} />
             </TouchableOpacity>
-            <View style={styles.cartBadge}>
-              <Text style={styles.cartBadgeText}>2</Text>
-            </View>
+
+            {totalItems>0 && <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{totalItems && totalItems>0 ? totalItems : ''}</Text>
+            </View>}
+
           </View>
         </View>
 
@@ -288,7 +311,7 @@ export default function HomeScreen() {
 
       <FoodItemModal
         visible={visible}
-        onClose={() => setVisible(false)}
+        onClose={onCloseModal}
         item={selectedItem || undefined}
         addToCart={(id) => Alert.alert('Add to Cart', `Item ID: ${id} - Functionality yet to be implemented !`)}
       />

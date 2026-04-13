@@ -146,51 +146,58 @@ const OrderDetailsScreen: React.FC = () => {
   const dynamicStyles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? Colors.background : Colors.background,
+      backgroundColor: isDarkMode ? Colors.backgroundSecondary : Colors.backgroundSecondary,
     },
     content: {
       flex: 1,
-      backgroundColor: isDarkMode ? Colors.background : Colors.background,
+      backgroundColor: isDarkMode ? Colors.backgroundSecondary : Colors.backgroundSecondary,
     },
     summaryCard: {
       backgroundColor: isDarkMode ? Colors.backgroundSecondary : Colors.backgroundSecondary,
       margin: 16,
       padding: 20,
       borderRadius: 12,
-      elevation: 3,
-      shadowColor: isDarkMode ? '#000000' : '#000000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: isDarkMode ? 0.1 : 0.1,
-      shadowRadius: 4,
+      borderStyle:'dashed',
+      borderWidth:1,
+      borderColor:Colors.primaryBg,
+      // elevation: 3,
+      // shadowColor: isDarkMode ? '#000000' : '#000000',
+      // shadowOffset: { width: 0, height: 2 },
+      // shadowOpacity: isDarkMode ? 0.1 : 0.1,
+      // shadowRadius: 4,
     },
     detailCard: {
       backgroundColor: isDarkMode ? Colors.backgroundSecondary : Colors.backgroundSecondary,
       marginHorizontal: 16,
       marginBottom: 12,
       padding: 16,
+      borderStyle:'dashed',
+      borderWidth:1,
+      borderColor:Colors.primaryBg,
       borderRadius: 12,
-      elevation: 2,
-      shadowColor: isDarkMode ? '#000000' : '#000000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: isDarkMode ? 0.1 : 0.08,
-      shadowRadius: 3,
+
+      // elevation: 2,
+      // shadowColor: isDarkMode ? '#000000' : '#000000',
+      // shadowOffset: { width: 0, height: 1 },
+      // shadowOpacity: isDarkMode ? 0.1 : 0.08,
+      // shadowRadius: 3,
     },
     orderNumber: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.primaryBg : Colors.primaryBg,
       marginBottom: 12,
     },
     cardTitle: {
       fontSize: 16,
       fontWeight: '600',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
       marginLeft: 8,
     },
     shopName: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
       marginTop: 8,
     },
     shopAddress: {
@@ -201,7 +208,7 @@ const OrderDetailsScreen: React.FC = () => {
     itemName: {
       fontSize: 15,
       fontWeight: '600',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
       marginBottom: 4,
     },
     itemBrand: {
@@ -225,12 +232,12 @@ const OrderDetailsScreen: React.FC = () => {
     pricingValue: {
       fontSize: 14,
       fontWeight: '600',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
     },
     totalLabel: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
     },
     totalAmount: {
       fontSize: 16,
@@ -239,7 +246,7 @@ const OrderDetailsScreen: React.FC = () => {
     },
     addressText: {
       fontSize: 14,
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
       marginTop: 8,
       lineHeight: 20,
     },
@@ -247,7 +254,7 @@ const OrderDetailsScreen: React.FC = () => {
       fontSize: 14,
       fontWeight: '600',
       textTransform: 'uppercase',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
       marginTop: 8,
     },
     dateLabel: {
@@ -258,7 +265,7 @@ const OrderDetailsScreen: React.FC = () => {
     dateValue: {
       fontSize: 14,
       fontWeight: '600',
-      color: isDarkMode ? Colors.textWhite : Colors.textWhite,
+      color: isDarkMode ? Colors.black : Colors.black,
     },
     partnerName: {
       fontSize: 16,
@@ -289,23 +296,28 @@ const OrderDetailsScreen: React.FC = () => {
     <SafeAreaView style={dynamicStyles.container}>
       {/* Header */}
       <LinearGradient
-        colors={[Colors.background, Colors.background]}
+        colors={[Colors.backgroundSecondary, Colors.backgroundSecondary]}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
         <TouchableOpacity 
           onPress={() => navigation.goBack()}
-          style={styles.headerButton}
+          style={[styles.headerButton,styles.backButton]}
         >
-          <Icon name="arrow-back" size={24} color={Colors.textColor} />
+          <Icon name="keyboard-arrow-left" size={24} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Order Details</Text>
-        <TouchableOpacity 
+        {/* <TouchableOpacity 
           onPress={downloadInvoice}
-          style={styles.headerButton}
+          style={[styles.headerButton]}
         >
-          <Icon name="download" size={24} color={Colors.textColor} />
+          <Icon name="download" size={24} color={Colors.black} />
+        </TouchableOpacity> */}
+        <TouchableOpacity style={styles.profileButton} onPress={()=> navigation.navigate(Constants.SCREENS.PROFILE)}>
+          <View style={styles.profileIcon}>
+            <Icon name="person" size={20} color={Colors.black} />
+          </View>
         </TouchableOpacity>
       </LinearGradient>
 
@@ -343,6 +355,27 @@ const OrderDetailsScreen: React.FC = () => {
                 <Text style={dynamicStyles.dateValue}>{currentOrder.estimatedDelivery}</Text>
               </View> */}
             </View>
+                <View style={styles.newCardHeader}>
+                <View style={styles.cardHeader}>
+                  <Icon name="payment" size={20} color="#4CAF50" />
+                  <Text style={dynamicStyles.cardTitle}>Payment Status</Text>
+                </View>
+                <View style={styles.paymentContainer}>
+                  <Icon name="account-balance-wallet" size={18} color="#4CAF50" />
+                  <Text style={dynamicStyles.paymentMethod}>{currentOrder.paymentStatus}</Text>
+                </View>
+              </View>
+              <View style={styles.newCardHeader}>
+                <View style={styles.cardHeader}>
+                  <Icon name="payment" size={20} color="#4CAF50" />
+                  <Text style={dynamicStyles.cardTitle}>Payment Method</Text>
+                </View>
+                <View style={styles.paymentContainer}>
+                  <Icon name="account-balance-wallet" size={18} color="#4CAF50" />
+                  <Text style={dynamicStyles.paymentMethod}>{currentOrder.paymentMethod === 'cash_on_delivery' ? 'COD' : currentOrder.paymentMethod} </Text>
+                </View>
+              </View>
+
             {currentOrder.isScheduled && (
               <View style={[styles.statusBadge,{backgroundColor:'#FF9800' + '20', padding: 16, marginTop:10}]}>
                 <Text style={{color:'#FF9800'}}>This order is schedule at {currentOrder.scheduledAt}</Text>
@@ -350,16 +383,17 @@ const OrderDetailsScreen: React.FC = () => {
               )}
           </View>
 
+
           {/* Shop Details */}
-          <View style={dynamicStyles.detailCard}>
+          {/* <View style={dynamicStyles.detailCard}>
             <View style={styles.cardHeader}>
               <Icon name="store" size={20} color="#4CAF50" />
               <Text style={dynamicStyles.cardTitle}>Ordered from</Text>
             </View>
             <Text style={dynamicStyles.shopName}>{currentOrder.shopName}</Text>
             <Text style={dynamicStyles.shopAddress}></Text>
-            {/* <Text style={dynamicStyles.shopAddress}>{currentOrder.shopAddress}</Text> */}
-          </View>
+            <Text style={dynamicStyles.shopAddress}>{currentOrder.shopAddress}</Text>
+          </View> */}
 
           {/* Order Items */}
           <View style={dynamicStyles.detailCard}>
@@ -511,7 +545,7 @@ const OrderDetailsScreen: React.FC = () => {
           </View>
 
           {/* Payment Method */}
-          <View style={dynamicStyles.detailCard}>
+          {/* <View style={dynamicStyles.detailCard}>
             <View style={styles.cardHeader}>
               <Icon name="payment" size={20} color="#4CAF50" />
               <Text style={dynamicStyles.cardTitle}>Payment Method</Text>
@@ -520,9 +554,9 @@ const OrderDetailsScreen: React.FC = () => {
               <Icon name="account-balance-wallet" size={18} color="#4CAF50" />
               <Text style={dynamicStyles.paymentMethod}>{currentOrder.paymentMethod === 'cash_on_delivery' ? 'COD' : currentOrder.paymentMethod} </Text>
             </View>
-          </View>
+          </View> */}
 
-          <View style={dynamicStyles.detailCard}>
+          {/* <View style={dynamicStyles.detailCard}>
             <View style={styles.cardHeader}>
               <Icon name="payment" size={20} color="#4CAF50" />
               <Text style={dynamicStyles.cardTitle}>Payment Status</Text>
@@ -531,7 +565,7 @@ const OrderDetailsScreen: React.FC = () => {
               <Icon name="account-balance-wallet" size={18} color="#4CAF50" />
               <Text style={dynamicStyles.paymentMethod}>{currentOrder.paymentStatus}</Text>
             </View>
-          </View>
+          </View> */}
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
@@ -572,10 +606,20 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 20,
   },
+  backButton: {
+    marginRight: 8,
+    color: '#1A1A1A',
+    backgroundColor: '#f7f6f9ff',
+    borderRadius: 50,
+    height:40,
+    width:40,
+    justifyContent:'center',
+    alignItems:'center',
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: Colors.textColor,
+    color: Colors.black,
     flex: 1,
     textAlign: 'center',
   },
@@ -604,9 +648,9 @@ const styles = StyleSheet.create({
   dateContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: Colors.textWhite,
-    borderRadius: 8,
+    borderTopWidth: 1,
+    borderStyle:'dashed',
+    borderTopColor: '#E0E0E0',
     padding: 16,
   },
   dateItem: {
@@ -617,13 +661,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
     paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
   },
   orderItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    borderStyle:'dashed',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -645,6 +688,7 @@ const styles = StyleSheet.create({
   pricingContainer: {
     marginTop: 16,
     paddingTop: 16,
+    borderStyle:'dashed',
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
   },
@@ -659,14 +703,21 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   divider: {
-    height: 1,
-    backgroundColor: '#E0E0E0',
+    // height: 1,
+    // backgroundColor: '#E0E0E0',
     marginVertical: 8,
+    borderStyle:'dashed',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   paymentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    // borderStyle:'dashed',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#E0E0E0',
     marginTop: 8,
+    // marginBottom: 16,
   },
   partnerInfoContainer: {
     flexDirection: 'row',
@@ -751,10 +802,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: Colors.primaryBg,
     paddingVertical: 14,
-    borderRadius: 12,
-    elevation: 2,
+    borderRadius: 50,
+    // elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -785,6 +836,26 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 24,
+  },
+  profileButton: {
+    padding: 4,
+  },
+  profileIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f7f6f9ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  newCardHeader: {
+    flexDirection:'row',
+    alignItems:'center', 
+    justifyContent:'space-between', 
+    marginBottom:10,                  
+    borderBottomWidth: 1,
+    borderStyle:'dashed',
+    borderBottomColor: '#E0E0E0'
   },
 });
 

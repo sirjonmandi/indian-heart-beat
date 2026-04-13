@@ -167,13 +167,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 12,
     textAlign: 'center',
   },
   message: {
     fontSize: 15,
-    color: Colors.textColor,
+    color: Colors.black,
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 22,

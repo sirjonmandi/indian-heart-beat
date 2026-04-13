@@ -8,7 +8,7 @@ class ApiClient {
 
   constructor() {
     this.baseURL = __DEV__ 
-      ? 'http://192.168.1.4:8000/api/v1' // Development
+      ? 'http://192.168.1.3:8000/api/v1' // Development
       : 'https://beergo.in/beergo-backup/public/api/v1'; // Production 
     // this.baseURL = 'https://beergo.in/beergo-backup/public/api/v1'; // Production
 

@@ -7,7 +7,7 @@ export const GlobalStyles = StyleSheet.create({
   // Container Styles
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSecondary,
   },
   
   safeContainer: {
