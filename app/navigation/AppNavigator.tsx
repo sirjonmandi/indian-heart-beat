@@ -65,6 +65,7 @@ import WorkScheduleScreen from '@/screens/delivery/profile/WorkScheduleScreen';
 import AgeVerificationScreen from '@/screens/auth/AgeVerificationScreen';
 import LocationPermissionScreen from '@/screens/auth/LocationPermissionScreen';
 import { Colors } from '@/styles/colors';
+import OrderHistoryScreen from '@/screens/customer/orders/OrderHistoryScreen';
 const Stack = createStackNavigator();
 
 // Simple Loading Component
@@ -120,6 +121,7 @@ const MainNavigator: React.FC<{ userType: string }> = ({ userType }) => {
           <Stack.Screen name={Constants.SCREENS.CHECKOUT} component={CheckoutScreen} />
           <Stack.Screen name={Constants.SCREENS.ADDRESSES} component={AddressScreen} />
           <Stack.Screen name={Constants.SCREENS.ADD_ADDRESS} component={AddAddressScreen} />
+          <Stack.Screen name={Constants.SCREENS.ORDER_HISTORY} component={OrderHistoryScreen} />
           <Stack.Screen name={Constants.SCREENS.ORDER_TRACKING} component={OrderTrackingScreen} />
           <Stack.Screen name={Constants.SCREENS.ORDER_DETAILS} component={OrderDetailsScreen} />
           <Stack.Screen name={Constants.SCREENS.PROFILE} component={ProfileScreen} />

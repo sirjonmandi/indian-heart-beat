@@ -10,36 +10,23 @@ import {
   Image,
   StatusBar,
   SafeAreaView,
-  Dimensions,
-  ImageBackground,
   Alert,
-  BackHandler,
-  FlatList,
-  Modal,
-  KeyboardAvoidingView,
-  Animated,
-  Platform,
 } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FoodItemModal from '@/components/common/FoodItemModal';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { Constants } from '@/utils/constants';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-
+import FoodCard from '@/components/customer/FoodCard';
+import CategoryCircle from '@components/customer/CategoryCircle';
+import { getCart } from '@/store/slices/cartSlice';
+import { useAlert } from '@/components/context/AlertContext';
+import { getHomePageInfo } from '@/store/slices/customerHomeSlice';
+import { NotificationRequest } from '@/components/common/NotificationRequest';
+import { Category } from '@/components/customer/CategoryGrid';
 // Type definitions
-interface FoodItem {
-  id: number;
-  emoji: any;
-  name: string;
-  rating: string;
-  reviews: string;
-  time: string;
-  difficulty: string;
-  store: string;
-  price: number;
-}
 
 interface ModalItem {
   name: string;
@@ -56,82 +43,22 @@ interface ModalItem {
   };
 }
 
-interface FoodCardProps extends FoodItem {
-  wide?: boolean;
-  onPress?: (item: FoodItem) => void;
+interface FoodItem {
+  id: number;
+  emoji: any;
+  name: string;
+  rating: string;
+  reviews: string;
+  time: string;
+  difficulty: string;
+  store: string;
+  price: number;
 }
-
-interface Category {
-  image: any;
-  label: string;
-  onpress: () => void;
-}
-
-const { width } = Dimensions.get('window');
 
 // ─── Placeholder image components ──────────────────────────────────────────
 const SushiBanner = () => (
   <View style={styles.sushiPlaceholder}>
-    {/* <Text style={styles.sushiEmoji}>🍣</Text> */}
     <Image source={require('../../../../assets/foods/sushi.png')} style={{ width: 240, height: 240 }} />
-  </View>
-);
-
-const CategoryCircle = ({ image, label, onpress }: Category) => (
-  <TouchableOpacity onPress={onpress}>
-    <View style={styles.categoryItem}>
-      <View style={styles.categoryCircle}>
-        <Image source={image} style={{ width: 50, height: 50, borderRadius:50, }} />
-        <Text style={styles.categoryLabel}>{label}</Text>
-      </View>
-    </View>
-  </TouchableOpacity>
-);
-
-const FoodCard = ({ id, emoji, name, rating, reviews, time, difficulty, store, price, wide, onPress }: FoodCardProps) => (
-  <View style={[styles.foodCard, wide && { width: width * 0.7 }]}>
-    <ImageBackground source={emoji} style={{ flex: 1 }} imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-      {/* Food Image */}
-      <View style={styles.foodImageContainer}>
-        {/* <View style={styles.foodImagePlaceholder}>
-          <Text style={styles.foodEmoji}>{emoji}</Text>
-        </View> */}
-        {/* Rating Badge */}
-        <View style={styles.ratingBadge}>
-          <Icon name='star' size={15} color='#FFD700' />
-          <Text style={styles.ratingText}> {rating} ({reviews})</Text>
-        </View>
-        {/* Favourite */}
-        <TouchableOpacity style={styles.favButton}>
-          <Icon name='favorite-border' size={17} color='#FF4B6E' />
-        </TouchableOpacity>
-      </View>
-
-      {/* Card Footer */}
-      <View style={styles.foodCardFooter}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.foodName}>{name}</Text>
-          <View style={styles.foodMeta}>
-            <Icon name='access-time' size={11} color={GRAY} />
-            <Text style={styles.metaText}> {time}</Text>
-            <Text style={styles.metaDot}>•</Text>
-            <Text style={styles.metaText}>{difficulty}</Text>
-            <Text style={styles.metaDot}>•</Text>
-            <Text style={styles.metaText}>By {store}</Text>
-          </View>
-        </View>
-        <TouchableOpacity 
-          style={styles.arrowButton}
-          onPress={() => {
-            if (onPress) {
-              onPress({ id, emoji, name, rating, reviews, time, difficulty, store, price });
-            }
-          }}
-          >
-          <Icon name='arrow-outward' size={16} color={WHITE} /> 
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
   </View>
 );
 
@@ -140,17 +67,22 @@ export default function HomeScreen() {
   const [visible, setVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedItem, setSelectedItem] = useState<ModalItem | null>(null);
-  const { totalItems } = useSelector((state:RootState)=>{
-    return state.cart
-  })
+  const {brands, categories, addresses, defaultAddress:selectedId, carousel, newArrivals:products } = useSelector((state:RootState)=>state.customerHome);
+  const { items: cartItems, itemsCount:totalItems, subTotal } = useSelector((state: RootState) => state.cart);
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const dispatch = useDispatch();
   const navigation = useNavigation();
-  const categories = [
-    { image: require('../../../../assets/foods/salad.jpg'), label: 'Salads' },
-    { image: require('../../../../assets/foods/chinese.jpg'), label: 'Chinese Food' },
-    { image: require('../../../../assets/foods/indian.jpg'), label: 'Indian Food' },
-    { image: require('../../../../assets/foods/fast.jpg'), label: 'Fast Food' },
-    { image: require('../../../../assets/foods/korean.jpg'), label: 'Korean Food' },
-  ];
+  const { showAlert } = useAlert();
+  const [refresh,setRefresh] = useState(false);
+  const isFocused = useIsFocused();
+  // const categories = [
+  //   { image: require('../../../../assets/foods/salad.jpg'), label: 'Salads' },
+  //   { image: require('../../../../assets/foods/chinese.jpg'), label: 'Chinese Food' },
+  //   { image: require('../../../../assets/foods/indian.jpg'), label: 'Indian Food' },
+  //   { image: require('../../../../assets/foods/fast.jpg'), label: 'Fast Food' },
+  //   { image: require('../../../../assets/foods/korean.jpg'), label: 'Korean Food' },
+  // ];
 
   const picks = [
     { id: 1, emoji: require('../../../../assets/foods/indian.jpg'), name: 'Biryani', rating: '4.9', reviews: '3.3k', time: '25 min', difficulty: 'Easy', store: 'Indian Heart Beat', price: 449 },
@@ -181,6 +113,77 @@ export default function HomeScreen() {
 
   const onCloseModal = () =>{
     setVisible(false);
+  }
+
+  const getHomePageData = async() => {
+    try {
+      await dispatch(getHomePageInfo() as any).unwrap();
+      await getProducts();
+    } catch (error) {
+      console.log('================= error ===================');
+      console.log(error);
+      console.log('====================================');
+    }
+  }
+
+  const getProducts  = async() =>{
+    try {
+      // console.log("fetching products");
+      // await dispatch(fetchProducts({category:11, shop_id: 13}) as any).unwrap();
+      await dispatch(getCart() as any).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const fetchHome = async()=>{
+    try {
+      await getHomePageData();
+    } catch (error: any) {
+      // Extract the most relevant error message
+      const message =
+        (error.response?.data?.errors &&
+          Object.values(error.response.data.errors)?.[0]?.[0]) ||
+        error.response?.data?.message ||
+        error.message ||
+        'Something went wrong. Please try again.';
+
+      console.error('Home API Error:', {  
+        fullError: error,
+        message,
+        status: error.response?.status,
+      });
+
+      showAlert({
+        title: "Error",
+        message: message,
+        buttons:[ {
+            text: 'OK',
+            color: '#ba181b',
+            textColor: '#FFFFFF',
+          }]
+      });
+    }
+  }
+
+  useEffect(()=>{
+    fetchHome();
+    if (refresh) {
+      setRefresh(false);
+    }
+  },[refresh,isFocused]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      NotificationRequest();
+    }, 2000);
+  },[]);
+
+  const handleCategoryPress = (category: Category) => {
+    let store = {
+      id:13,
+    };
+    navigation.navigate(Constants.SCREENS.PRODUCT_LIST, { store , category });
   }
 
   React.useEffect(() => {
@@ -288,7 +291,7 @@ export default function HomeScreen() {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow} contentContainerStyle={{ paddingHorizontal: 20 }}>
           {categories.map((cat, i) => (
-            <CategoryCircle key={i} image={cat.image} label={cat.label} onpress={() => {Alert.alert('Category Pressed', 'screen yet to be implemented !')}} />
+            <CategoryCircle key={i} image={cat.image} label={cat.name} onpress={() => {Alert.alert('Category Pressed', 'screen yet to be implemented !')}} />
           ))}
         </ScrollView>
 
@@ -536,184 +539,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: GRAY,
     fontWeight: '500',
-  },
-
-  // ── Categories
-  categoriesRow: {
-    marginBottom: 24,
-    flexGrow: 0,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    marginRight: 18,
-  },
-  categoryCircle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: WHITE,
-    borderRadius: 100,
-    marginRight: 8,
-  },
-  categoryEmoji: {
-    fontSize: 28,
-  },
-  categoryLabel: {
-    fontSize: 14,
-    color: DARK,
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingLeft: 16,
-    paddingRight: 24,
-  },
-
-  // ── Food Card
-  foodCard: {
-    width: width * 0.65,
-    backgroundColor: WHITE,
-    borderRadius: 20,
-    marginRight: 16,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.10,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  foodImageContainer: {
-    height: 170,
-    position: 'relative',
-  },
-  foodImagePlaceholder: {
-    flex: 1,
-    backgroundColor: '#FFE8D6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  foodEmoji: {
-    fontSize: 72,
-  },
-  ratingBadge: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  ratingText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: DARK,
-  },
-  favButton: {
-    position: 'absolute',
-    top: 10,
-    right: 12,
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: WHITE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-  },
-  favIcon: {
-    fontSize: 17,
-    color: '#FF4B6E',
-  },
-  foodCardFooter: {
-    backgroundColor: WHITE,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 14,
-    // height: 90,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  foodName: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: DARK,
-    marginBottom: 4,
-  },
-  foodMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  },
-  metaText: {
-    fontSize: 11,
-    color: GRAY,
-  },
-  metaDot: {
-    fontSize: 11,
-    color: GRAY,
-    marginHorizontal: 3,
-  },
-  arrowButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: ORANGE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 10,
-  },
-  arrowIcon: {
-    color: WHITE,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-
-  // ── Bottom Nav
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 70,
-    backgroundColor: WHITE,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: -3 },
-    paddingBottom: 8,
-  },
-  tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  tabIcon: {
-    fontSize: 20,
-    color: GRAY,
-    marginBottom: 2,
-  },
-  tabIconActive: {
-    color: ORANGE,
-  },
-  tabLabel: {
-    fontSize: 11,
-    color: GRAY,
-    fontWeight: '500',
-  },
-  tabLabelActive: {
-    color: ORANGE,
-    fontWeight: '700',
   },
 });

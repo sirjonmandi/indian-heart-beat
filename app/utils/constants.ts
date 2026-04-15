@@ -5,8 +5,8 @@ export const Constants = {
     : 'https://beergo.in/beergo-backup/public/api/v1',
   
   // App Configuration
-  APP_NAME: 'Maharaj Enterprise',
-  APP_VERSION: '1.3.5',
+  APP_NAME: 'Indian Heart Beat',
+  APP_VERSION: "1.0.0",
   
   // Delivery Configuration
   MIN_ORDER_AMOUNT: 299,

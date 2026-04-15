@@ -59,22 +59,22 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
 
         const onPress = () => {
           // else 
-          if (route.name === Constants.SCREENS.PROFILE_TAB)
-          {
-            Alert.alert('Notification', 'Screens yet to be implemented !',
-              [
-                {
-                  text: 'Logout',
-                  onPress: async() => {
-                    await AsyncStorage.removeItem('authToken');
-                    dispatch(logout());
-                  },
-                },
-                { text: 'Okay', style: 'cancel' },
-              ]
-            );
-            return;
-          }
+          // if (route.name === Constants.SCREENS.PROFILE_TAB)
+          // {
+          //   Alert.alert('Notification', 'Screens yet to be implemented !',
+          //     [
+          //       {
+          //         text: 'Logout',
+          //         onPress: async() => {
+          //           await AsyncStorage.removeItem('authToken');
+          //           dispatch(logout());
+          //         },
+          //       },
+          //       { text: 'Okay', style: 'cancel' },
+          //     ]
+          //   );
+          //   return;
+          // }
 
           const event = navigation.emit({
             type: 'tabPress',

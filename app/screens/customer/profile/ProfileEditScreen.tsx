@@ -7,20 +7,17 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import LinearGradient from 'react-native-linear-gradient';
 import { customerAPI } from '@/services/api/customerAPI';
 import { ApiResponse } from '@/services/api';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
 import { setUser } from '@/store/slices/authSlice';
-import Header from '@/components/common/Header';
 import { Colors } from '@/styles/colors';
 import { useAlert } from '@/components/context/AlertContext';
 
@@ -35,7 +32,6 @@ interface Profile {
 const ProfileEditScreen: React.FC = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
   const { showAlert } = useAlert();
 
   const localAlert = (title: string, message: string, onPress?: () => void) => {
@@ -46,12 +42,13 @@ const ProfileEditScreen: React.FC = () => {
         {
           text: 'OK',
           color: Colors.btnColorPrimary,
-          textColor:Colors.btnTextPrimary,
+          textColor: Colors.btnTextPrimary,
           onPress: onPress || (() => {}),
         },
       ],
     });
   };
+
   const [formData, setFormData] = useState<Profile>({
     firstName: '',
     lastName: '',
@@ -66,7 +63,7 @@ const ProfileEditScreen: React.FC = () => {
   const updateField = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: field === 'phone' ? (value ? parseInt(value) : 0) : value
+      [field]: field === 'phone' ? (value ? parseInt(value) : 0) : value,
     }));
   };
 
@@ -97,9 +94,7 @@ const ProfileEditScreen: React.FC = () => {
 
   const saveProfile = async () => {
     if (!validateForm()) return;
-
     setIsSaving(true);
-
     try {
       const res: ApiResponse = await customerAPI.updateProfile(formData);
       const { success, message, data } = res.data;
@@ -109,8 +104,8 @@ const ProfileEditScreen: React.FC = () => {
       }
     } catch (error: any) {
       const apiMessage =
-        error?.response?.data?.errors &&
-        Object.values(error.response.data.errors)?.[0]?.[0] ||
+        (error?.response?.data?.errors &&
+          Object.values(error.response.data.errors)?.[0]?.[0]) ||
         error?.response?.data?.message ||
         error?.message ||
         'Failed to update profile. Please try again.';
@@ -131,7 +126,6 @@ const ProfileEditScreen: React.FC = () => {
         user.email = data.email;
         await AsyncStorage.setItem('user', JSON.stringify(user));
         dispatch(setUser(user));
-        console.log('User updated successfully');
       }
     } catch (error) {
       console.error('Error updating user in AsyncStorage', error);
@@ -149,7 +143,7 @@ const ProfileEditScreen: React.FC = () => {
             lastName: data.lastName || '',
             email: data.email || '',
             phone: data.phone ? String(data.phone) : '',
-            dateOfBirth: data.dateOfBirth || ''
+            dateOfBirth: data.dateOfBirth || '',
           });
         }
       } catch (error) {
@@ -159,6 +153,11 @@ const ProfileEditScreen: React.FC = () => {
     fetchProfile();
   }, [isFocused]);
 
+  const fullName = [formData.firstName, formData.lastName].filter(Boolean).join(' ');
+  const handle = fullName
+    ? '@' + fullName.toLowerCase().replace(/\s+/g, '')
+    : '@user';
+
   const renderInput = ({
     label,
     field,
@@ -166,8 +165,6 @@ const ProfileEditScreen: React.FC = () => {
     keyboardType = 'default',
     autoCapitalize = 'words',
     editable = true,
-    icon,
-    note
   }: {
     label: string;
     field: keyof Profile;
@@ -175,31 +172,28 @@ const ProfileEditScreen: React.FC = () => {
     keyboardType?: any;
     autoCapitalize?: any;
     editable?: boolean;
-    icon: string;
-    note?: string;
   }) => {
     const isFieldFocused = focusedField === field;
     const hasValue = formData[field] && String(formData[field]).length > 0;
 
     return (
-      <View style={styles.inputContainer}>
-        <View style={styles.labelContainer}>
-          <Icon name={icon} size={20} color="#999" />
-          <Text style={styles.inputLabel}>
-            {label} {editable ? '*' : ''}
-          </Text>
-        </View>
-        <View style={[
-          styles.inputWrapper,
-          isFieldFocused && styles.inputWrapperFocused,
-          !editable && styles.inputWrapperDisabled,
-        ]}>
+      <View
+        style={[
+          styles.inputBox,
+          isFieldFocused && styles.inputBoxFocused,
+          !editable && styles.inputBoxDisabled,
+        ]}
+      >
+        <Text style={[styles.floatingLabel, !editable && styles.floatingLabelDisabled]}>
+          {label}
+        </Text>
+        <View style={styles.inputRow}>
           <TextInput
             style={[styles.input, !editable && styles.inputDisabled]}
             placeholder={placeholder}
-            placeholderTextColor="#666"
+            placeholderTextColor="#C0C0B8"
             value={String(formData[field] || '')}
-            onChangeText={(text) => updateField(field, text)}
+            onChangeText={text => updateField(field, text)}
             onFocus={() => setFocusedField(field)}
             onBlur={() => setFocusedField(null)}
             keyboardType={keyboardType}
@@ -207,138 +201,125 @@ const ProfileEditScreen: React.FC = () => {
             editable={editable}
           />
           {hasValue && editable && (
-            <TouchableOpacity
-              onPress={() => updateField(field, '')}
-              style={styles.clearButton}
-            >
-              <Icon name="clear" size={20} color="#666" />
+            <TouchableOpacity onPress={() => updateField(field, '')} style={styles.clearBtn}>
+              <Icon name="clear" size={18} color="#AAAAAA" />
             </TouchableOpacity>
           )}
+          {!editable && (
+            <Icon name="lock-outline" size={16} color="#CCCCCC" style={styles.lockIcon} />
+          )}
         </View>
-        {note && (
-          <Text style={styles.inputNote}>{note}</Text>
-        )}
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       {/* Header */}
-      {/* <Header title="Edit Profile" /> */}
-      <LinearGradient
-        colors={[Colors.background, Colors.background]}
-        style={styles.header}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <TouchableOpacity
-          style={styles.headerButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-back" size={24} color={Colors.textColor} />
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <Icon name="keyboard-arrow-left" size={20} color={Colors.black} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Edit Profile</Text>
-        <View style={{ width: 40 }} />
-      </LinearGradient>
+        <View style={{ width: 34 }} />
+      </View>
 
       <KeyboardAvoidingView
-        style={styles.keyboardAvoid}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          style={styles.content}
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Profile Avatar Section */}
+          {/* Avatar */}
           <View style={styles.avatarSection}>
-            <View style={styles.avatarContainer}>
-              <LinearGradient
-                colors={['#ba181b', '#e5383b']}
-                style={styles.avatar}
-              >
-                <Icon name="person" size={48} color={Colors.textWhite} />
-              </LinearGradient>
-              <TouchableOpacity style={styles.cameraButton}>
-                <Icon name="camera-alt" size={16} color="#fff" />
+            <View style={styles.avatarWrap}>
+              <View style={styles.avatarCircle}>
+                <Icon name="person" size={44} color="#fff" />
+              </View>
+              <TouchableOpacity style={styles.cameraBtn}>
+                <Icon name="camera-alt" size={14} color="#fff" />
               </TouchableOpacity>
             </View>
-            <Text style={styles.avatarText}>
-              Tap to change profile picture
-            </Text>
+            <Text style={styles.displayName}>{fullName || 'Your Name'}</Text>
+            <Text style={styles.displayHandle}>{formData.dateOfBirth || 'N/A'}</Text>
           </View>
 
-          {/* Form Section */}
-          <View style={styles.formSection}>
-            <Text style={styles.sectionTitle}>Personal Information</Text>
-
+          {/* Form */}
+          <View style={styles.form}>
             {renderInput({
-              label: 'First Name',
+              label: 'Full name',
               field: 'firstName',
-              placeholder: 'Enter your first name',
-              icon: 'person-outline'
+              placeholder: 'Parves Ahamad',
+            })}
+
+            <View style={styles.row}>
+              <View style={{ flex: 1 }}>
+                {renderInput({
+                  label: 'Gender',
+                  field: 'lastName',
+                  placeholder: 'Male',
+                })}
+              </View>
+              <View style={{ width: 12 }} />
+              <View style={{ flex: 1 }}>
+                {renderInput({
+                  label: 'Birthday',
+                  field: 'dateOfBirth',
+                  placeholder: '05-01-2001',
+                  editable: false,
+                  autoCapitalize: 'none',
+                })}
+              </View>
+            </View>
+
+            {renderInput({
+              label: 'Phone number',
+              field: 'phone',
+              placeholder: '(+880) 1759263000',
+              editable: false,
+              keyboardType: 'phone-pad',
             })}
 
             {renderInput({
-              label: 'Last Name',
-              field: 'lastName',
-              placeholder: 'Enter your last name',
-              icon: 'person-outline'
-            })}
-
-            {renderInput({
-              label: 'Email Address',
+              label: 'Email',
               field: 'email',
-              placeholder: 'Enter your email address',
+              placeholder: 'example@email.com',
               keyboardType: 'email-address',
               autoCapitalize: 'none',
-              icon: 'email'
             })}
 
-            {renderInput({
-              label: 'Phone Number',
-              field: 'phone',
-              placeholder: 'Your phone number',
-              editable: false,
-              icon: 'phone',
-              note: 'Phone number cannot be changed. Contact support if needed.'
-            })}
-
-            {renderInput({
-              label: 'Date of Birth',
-              field: 'dateOfBirth',
-              placeholder: 'DD/MM/YYYY',
-              editable: false,
-              icon: 'cake',
-              autoCapitalize: 'none'
-            })}
-          </View>
-
-          {/* Additional Info */}
-          <View style={styles.infoSection}>
-            <View style={styles.infoItem}>
-              <Icon name="info-outline" size={20} color="#999" />
-              <Text style={styles.infoText}>
-                Changes to your profile will be reflected across all your orders and communications.
+            {/* <View
+              style={[
+                styles.inputBox,
+                styles.inputBoxDisabled,
+              ]}
+            >
+              <Text style={[styles.floatingLabel, styles.floatingLabelDisabled]}>
+                User name
               </Text>
-            </View>
+              <View style={styles.inputRow}>
+                <Text style={[styles.input, styles.inputDisabled]}>{handle}</Text>
+                <Icon name="lock-outline" size={16} color="#CCCCCC" style={styles.lockIcon} />
+              </View>
+            </View> */}
           </View>
         </ScrollView>
 
         {/* Save Button */}
-        <View style={styles.bottomContainer}>
+        <View style={styles.bottomBar}>
           <TouchableOpacity
-            style={[styles.saveButton, isSaving && styles.disabledButton]}
+            style={[styles.saveBtn, isSaving && styles.saveBtnDisabled]}
             onPress={saveProfile}
             disabled={isSaving}
+            activeOpacity={0.85}
           >
-            <View style={styles.saveButtonContent}>
-              {isSaving && <Icon name="hourglass-empty" size={20} color="#fff" />}
-              <Text style={[styles.saveButtonText, isSaving && { marginLeft: 8 }]}>
-                {isSaving ? 'Saving Changes...' : 'Save Changes'}
-              </Text>
-            </View>
+            <Text style={styles.saveBtnText}>
+              {isSaving ? 'Saving...' : 'Save'}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -347,215 +328,167 @@ const ProfileEditScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
-  },
-  keyboardAvoid: {
-    flex: 1,
+    backgroundColor: Colors.backgroundSecondary,
   },
 
-  // Header
+  /* Header */
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    backgroundColor: Colors.backgroundSecondary,
   },
-  headerButton: {
-    padding: 8,
-    borderRadius: 20,
+  backBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#E8E8E2',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.textColor,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    letterSpacing: -0.2,
   },
 
-  // ScrollView
-  content: {
-    flex: 1,
+  /* Scroll */
+  scroll: { flex: 1 },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
 
-  // Avatar
+  /* Avatar */
   avatarSection: {
-    backgroundColor: Colors.backgroundSecondary,
     alignItems: 'center',
-    paddingVertical: 32,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    paddingVertical: 24,
+    gap: 6,
   },
-  avatarContainer: {
+  avatarWrap: {
     position: 'relative',
-    marginBottom: 12,
+    marginBottom: 4,
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
+  avatarCircle: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    backgroundColor: '#A8A8A0',
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
   },
-  cameraButton: {
+  cameraBtn: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#4CAF50',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#1A1A1A',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#16191d',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#F5F5F0',
   },
-  avatarText: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-  },
-
-  // Form card
-  formSection: {
-    backgroundColor: Colors.backgroundSecondary,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  sectionTitle: {
+  displayName: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.textWhite,
-    marginBottom: 20,
+    color: '#1A1A1A',
+    letterSpacing: -0.3,
+    textTransform: 'capitalize',
+  },
+  displayHandle: {
+    fontSize: 13,
+    color: '#888880',
   },
 
-  // Input
-  inputContainer: {
-    marginBottom: 20,
+  /* Form */
+  form: {
+    gap: 12,
   },
-  labelContainer: {
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
   },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: Colors.textColor,
-    marginLeft: 8,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2a2d33',
+
+  /* Input Box — floating label style */
+  inputBox: {
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    backgroundColor: Colors.backgroundSecondary,
+    borderWidth: 1,
+    borderColor: '#E8E8E2',
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 10,
+    minHeight: 64,
+    justifyContent: 'center',
   },
-  inputWrapperFocused: {
-    borderColor: Colors.primary,
+  inputBoxFocused: {
+    borderColor: '#1A1A1A',
   },
-  inputWrapperDisabled: {
-    backgroundColor: Colors.background,
-    borderColor: '#1a1d21',
+  inputBoxDisabled: {
+    backgroundColor: '#FAFAFA',
+    borderColor: '#EFEFEB',
+  },
+  floatingLabel: {
+    fontSize: 12,
+    color: '#AAAAAA',
+    fontWeight: '400',
+    marginBottom: 2,
+  },
+  floatingLabelDisabled: {
+    color: '#C8C8C0',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
     flex: 1,
-    paddingVertical: 16,
-    fontSize: 16,
-    color: Colors.textColor,
+    fontSize: 15,
+    color: '#1A1A1A',
+    fontWeight: '500',
+    padding: 0,
+    margin: 0,
   },
   inputDisabled: {
-    color: '#666',
+    color: '#AAAAAA',
   },
-  clearButton: {
-    padding: 4,
+  clearBtn: {
+    paddingLeft: 8,
   },
-  inputNote: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 6,
-    fontStyle: 'italic',
+  lockIcon: {
+    marginLeft: 6,
   },
 
-  // Info card
-  infoSection: {
-    // backgroundColor: Colors.backgroundSecondary,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
-    padding: 20,
-    // elevation: 2,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.3,
-    // shadowRadius: 4,
+  /* Bottom Bar */
+  bottomBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: Colors.backgroundSecondary,
+    borderTopWidth: 0.5,
+    borderTopColor: '#E8E8E2',
   },
-  infoItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#999',
-    lineHeight: 20,
-    marginLeft: 12,
-  },
-
-  // Bottom save bar
-  bottomContainer: {
-    backgroundColor: Colors.background,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  saveButton: {
-    backgroundColor: Colors.primary,
-    paddingVertical: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  saveButtonContent: {
-    flexDirection: 'row',
+  saveBtn: {
+    backgroundColor: Colors.primaryBg,
+    borderRadius: 50,
+    paddingVertical: 16,
     alignItems: 'center',
   },
-  saveButtonText: {
-    color: '#FFFFFF',
+  saveBtnDisabled: {
+    opacity: 0.5,
+  },
+  saveBtnText: {
+    color: '#F5F5F0',
     fontSize: 16,
     fontWeight: '600',
-  },
-  disabledButton: {
-    opacity: 0.6,
+    letterSpacing: 0.2,
   },
 });
 

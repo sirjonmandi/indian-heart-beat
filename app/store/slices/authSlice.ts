@@ -121,55 +121,45 @@ export const checkAuthStatus = createAsyncThunk(
         return rejectWithValue('Invalid user data stored');
       }
 
-      return {
-        isAuthenticated: true,
-        token: authToken,
-        user: user,
-        userType: userTypeValue,
-        refreshToken: refreshTokenValue,
-        isValid: true
-      };
-
-
       // TODO: Uncomment when API is ready
-      // try {
-      //   console.log('🔐 Verifying token with backend...');
-      //   const response = await authAPI.verifyToken(authToken);
-      //   if (response.data.data.is_valid) {
-      //     console.log('✅ Token is valid - user authenticated');
-      //     const user = createUserObject(response.data.data.user);
-      //     return {
-      //       isAuthenticated: true,
-      //       token: authToken,
-      //       user: user,
-      //       userType: response.data.data.user.userType || userTypeValue,
-      //       refreshToken: refreshTokenValue,
-      //       isValid: true
-      //     };
-      //   } else {
-      //     console.log('❌ Token is invalid - clearing stored data');
-      //     await AsyncStorage.multiRemove(['authToken', 'user', 'userType', 'refreshToken']);
-      //     return {
-      //       isAuthenticated: false,
-      //       token: null,
-      //       user: null,
-      //       userType: null,
-      //       refreshToken: null,
-      //       isValid: false
-      //     };
-      //   }
-      // } catch (verificationError) {
-      //   console.log('⚠️ Token verification failed, but keeping local session:', verificationError);
-      //   // If verification fails (network issues), still allow local session
-      //   return {
-      //     isAuthenticated: true,
-      //     token: authToken,
-      //     user: parsedUser,
-      //     userType: parsedUser.userType || userTypeValue,
-      //     refreshToken: refreshTokenValue,
-      //     isValid: true
-      //   };
-      // }
+      try {
+        console.log('🔐 Verifying token with backend...');
+        const response = await authAPI.verifyToken(authToken);
+        if (response.data.data.is_valid) {
+          console.log('✅ Token is valid - user authenticated');
+          const user = createUserObject(response.data.data.user);
+          return {
+            isAuthenticated: true,
+            token: authToken,
+            user: user,
+            userType: response.data.data.user.userType || userTypeValue,
+            refreshToken: refreshTokenValue,
+            isValid: true
+          };
+        } else {
+          console.log('❌ Token is invalid - clearing stored data');
+          await AsyncStorage.multiRemove(['authToken', 'user', 'userType', 'refreshToken']);
+          return {
+            isAuthenticated: false,
+            token: null,
+            user: null,
+            userType: null,
+            refreshToken: null,
+            isValid: false
+          };
+        }
+      } catch (verificationError) {
+        console.log('⚠️ Token verification failed, but keeping local session:', verificationError);
+        // If verification fails (network issues), still allow local session
+        return {
+          isAuthenticated: true,
+          token: authToken,
+          user: parsedUser,
+          userType: parsedUser.userType || userTypeValue,
+          refreshToken: refreshTokenValue,
+          isValid: true
+        };
+      }
     } catch (error) {
       console.error('💥 Auth check error:', error);
       return {
