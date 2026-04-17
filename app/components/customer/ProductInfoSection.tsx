@@ -53,18 +53,18 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 4,
     lineHeight: 24,
   },
   productBrand: {
     fontSize: 14,
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 8,
   },
   productDetails: {
     fontSize: 12,
-    color: Colors.textWhite,
+    color: Colors.black,
   },
 });
 

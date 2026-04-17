@@ -128,7 +128,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSecondary,
     paddingTop: 16,
   },
   header: {
@@ -141,14 +141,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.textColor,
+    color: Colors.black,
   },
   filterButtons: {
     flexDirection: 'row',
   },
   filterButton: {
     fontSize: 12,
-    color: Colors.textColor,
+    color: Colors.black,
     marginLeft: 16,
     fontWeight: '600',
   },

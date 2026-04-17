@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import FoodCard from '@/components/customer/FoodCard';
 import CategoryCircle from '@components/customer/CategoryCircle';
-import { getCart } from '@/store/slices/cartSlice';
+import { addToCart, getCart } from '@/store/slices/cartSlice';
 import { useAlert } from '@/components/context/AlertContext';
 import { getHomePageInfo } from '@/store/slices/customerHomeSlice';
 import { NotificationRequest } from '@/components/common/NotificationRequest';
@@ -29,30 +29,49 @@ import { Category } from '@/components/customer/CategoryGrid';
 // Type definitions
 
 interface ModalItem {
+  id: number;
+  shop_id: number;
+  variant_id: number;
   name: string;
-  restaurant: string;
-  rating: number;
-  price: number;
-  deliveryTime: string;
-  deliveryType: string;
-  description: string;
-  imageUri: string;
-  driver: {
-    name: string;
-    id: string;
-  };
+  sku: string;
+  barcode: string;
+  images: string[];
+  volume: number;
+  variant_name: string;
+  volume_unit: string;
+  alcoholContent: string;
+  originalPrice: string;
+  price: string;
+  stock_quantity: number;
+  inStock: boolean;
+  discount_percentage: string;
+  brand: string;
+  category: string;
+  brand_id: number;
+  category_id: number;
 }
 
 interface FoodItem {
-  id: number;
-  emoji: any;
-  name: string;
-  rating: string;
-  reviews: string;
-  time: string;
-  difficulty: string;
-  store: string;
-  price: number;
+    id: number;
+    shop_id: number;
+    variant_id: number;
+    name: string;
+    sku: string;
+    barcode: string;
+    images: string[];
+    volume: number;
+    variant_name: string;
+    volume_unit: string;
+    alcoholContent: string;
+    originalPrice: string;
+    price: string;
+    stock_quantity: number;
+    inStock: boolean;
+    discount_percentage: string;
+    brand: string;
+    category: string;
+    brand_id: number;
+    category_id: number;
 }
 
 // ─── Placeholder image components ──────────────────────────────────────────
@@ -67,52 +86,50 @@ export default function HomeScreen() {
   const [visible, setVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [selectedItem, setSelectedItem] = useState<ModalItem | null>(null);
-  const {brands, categories, addresses, defaultAddress:selectedId, carousel, newArrivals:products } = useSelector((state:RootState)=>state.customerHome);
+  const {brands, categories, addresses, defaultAddress, carousel, newArrivals:products } = useSelector((state:RootState)=>state.customerHome);
   const { items: cartItems, itemsCount:totalItems, subTotal } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.auth);
-
+  // console.log('================== products ==================');
+  // console.log(JSON.stringify(products, null, 2));
+  // console.log('====================================');
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showAlert } = useAlert();
   const [refresh,setRefresh] = useState(false);
   const isFocused = useIsFocused();
-  // const categories = [
-  //   { image: require('../../../../assets/foods/salad.jpg'), label: 'Salads' },
-  //   { image: require('../../../../assets/foods/chinese.jpg'), label: 'Chinese Food' },
-  //   { image: require('../../../../assets/foods/indian.jpg'), label: 'Indian Food' },
-  //   { image: require('../../../../assets/foods/fast.jpg'), label: 'Fast Food' },
-  //   { image: require('../../../../assets/foods/korean.jpg'), label: 'Korean Food' },
-  // ];
 
-  const picks = [
-    { id: 1, emoji: require('../../../../assets/foods/indian.jpg'), name: 'Biryani', rating: '4.9', reviews: '3.3k', time: '25 min', difficulty: 'Easy', store: 'Indian Heart Beat', price: 449 },
-    { id: 2, emoji: require('../../../../assets/foods/fast.jpg'), name: 'Pizza', rating: '4.5', reviews: '1.8k', time: '20 min', difficulty: 'Easy', store: 'Indian Heart Beat', price: 199 },
-    { id: 3, emoji: require('../../../../assets/foods/chinese.jpg'), name: 'Momo', rating: '4.7', reviews: '2.3k', time: '25 min', difficulty: 'Easy', store: 'Indian Heart Beat', price: 149 },
-    { id: 4, emoji: require('../../../../assets/foods/korean.jpg'), name: 'Ramen', rating: '4.3', reviews: '1.3k', time: '20 min', difficulty: 'Easy', store: 'Indian Heart Beat', price: 499 },
-  ];
+  const handleAddToCart = (item: ModalItem) => {
+    dispatch(addToCart({
+      shopId: item.shop_id,
+      productId: item.id,
+      variantId: item.variant_id,
+      quantity: 1,
+      price: item.price,
+      originalPrice: item?.originalPrice,
+      notes: '',
+    }))
+    onCloseModal();
+    showAlert({
+       title: 'Added to Cart',
+        message: `${item.name} has been added to your cart`,
+        buttons: [
+          {
+            text: 'OK',
+            color: '#ba181b',
+            textColor: '#FFFFFF',
+          }
+        ],
+    });
+  }
 
   const handleFoodCardPress = (item: FoodItem) => {
-    const modalItem = {
-      id: item.id.toString(),
-      name: item.name,
-      restaurant: item.store,
-      rating: parseFloat(item.rating),
-      price: item.price,
-      deliveryTime: item.time,
-      deliveryType: item.difficulty,
-      description: `Delicious ${item.name} prepared with care. ${item.difficulty} to prepare and delivered in ${item.time}.`,
-      imageUri: item.emoji,
-      driver: {
-        name: 'John Doe',
-        id: '123456',
-      },
-    };
-    setSelectedItem(modalItem);
+    setSelectedItem(item);
     setVisible(true);
   };
 
   const onCloseModal = () =>{
     setVisible(false);
+    setSelectedItem(null);
   }
 
   const getHomePageData = async() => {
@@ -206,8 +223,8 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl 
-        refreshing={false} 
-        onRefresh={() => {}}
+        refreshing={refresh} 
+        onRefresh={getHomePageData}
         colors={[ORANGE]} // Android
         tintColor={ORANGE} // iOS
         title="Pull to refresh" // iOS
@@ -220,8 +237,8 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={styles.locationLabel}><Icon name='location-pin' size={15} color={DARK}/> Location</Text>
-            <TouchableOpacity style={styles.locationRow}>
-              <Text style={styles.locationText}>gt road, Durgapur, India</Text>
+            <TouchableOpacity style={styles.locationRow} onPress={()=>{navigation.navigate(Constants.SCREENS.ADDRESSES)}}>
+              <Text style={styles.locationText}>{`${defaultAddress.type} - ${defaultAddress.addressLine1}`}</Text>
               <Icon name='expand-more' size={26} color={DARK} style={styles.chevron} />
             </TouchableOpacity>
           </View>
@@ -291,7 +308,7 @@ export default function HomeScreen() {
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow} contentContainerStyle={{ paddingHorizontal: 20 }}>
           {categories.map((cat, i) => (
-            <CategoryCircle key={i} image={cat.image} label={cat.name} onpress={() => {Alert.alert('Category Pressed', 'screen yet to be implemented !')}} />
+            <CategoryCircle key={i} image={cat.image} label={cat.name} onpress={() => handleCategoryPress(cat)} />
           ))}
         </ScrollView>
 
@@ -304,8 +321,8 @@ export default function HomeScreen() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16 }}>
-          {picks.map((p, i) => (
-            <FoodCard key={i} {...p} wide onPress={handleFoodCardPress} />
+          {products && products.map((p, i) => (
+            <FoodCard key={i} FoodItem={p} wide onPress={handleFoodCardPress} />
           ))}
         </ScrollView>
 
@@ -316,7 +333,9 @@ export default function HomeScreen() {
         visible={visible}
         onClose={onCloseModal}
         item={selectedItem || undefined}
-        addToCart={(id) => Alert.alert('Add to Cart', `Item ID: ${id} - Functionality yet to be implemented !`)}
+        addToCart={(item) => {
+          handleAddToCart(item);
+        }}
       />
     </SafeAreaView>
   );

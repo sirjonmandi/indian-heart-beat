@@ -15,6 +15,7 @@ import CartFooter from '../../../components/customer/CartFooter';
 import { Product } from '../../../components/customer/ProductCard';
 import { customerAPI } from '@/services/api/customerAPI';
 import { useAlert } from '@/components/context/AlertContext';
+import FoodItemModal from '@/components/common/FoodItemModal';
 
 
 interface RouteParams {
@@ -26,6 +27,66 @@ interface RouteParams {
 interface PaginationMeta {
   currentPage: number;
   lastPage: number;
+}
+
+interface ModalItem {
+  // name: string;
+  // restaurant: string;
+  // rating: number;
+  // price: number;
+  // deliveryTime: string;
+  // deliveryType: string;
+  // description: string;
+  // imageUri: string;
+  // driver: {
+  //   name: string;
+  //   id: string;
+  // };
+  id:number;
+  shop_id:number;
+  variant_id:number;
+  name:string;
+  sku:string;
+  barcode:string;
+  images:string[];
+  description:string;
+  volume:number;
+  variant_name:string;
+  volume_unit:string;
+  alcoholContent:string;
+  originalPrice:string;
+  price:string;
+  stock_quantity:number;
+  inStock:boolean;
+  discount_percentage:string;
+  brand:string;
+  category:string;
+  brand_id:number;
+  category_id:number;
+  // "id": 2,
+  // "shop_id": 13,
+  // "variant_id": 5,
+  // "name": "Round Glass Cutter",
+  // "sku": "SKU-OCOFPW",
+  // "barcode": "BR-313294",
+  // "images": [
+  //   "http://192.168.1.3:8000/images/products/1770311451_0tzCaHbZYZ.webp",
+  //   "http://192.168.1.3:8000/images/products/1770372426_4mlpTJgDFU.jpg",
+  //   "http://192.168.1.3:8000/images/products/1770372438_ptZ9dpkNPH.jpg"
+  // ],
+  // "volume": 18,
+  // "variant_name": "18 Inch",
+  // "volume_unit": "ml",
+  // "alcoholContent": "30.00",
+  // "originalPrice": "1100.00",
+  // "price": "894.00",
+  // "stock_quantity": 161,
+  // "inStock": true,
+  // "discount_percentage": "18.73",
+  // "brand": "maharaj Enterprise",
+  // "category": "Glass Cutter",
+  // "brand_id": 10,
+  // "category_id": 12
 }
 
 const SEARCH_DEBOUNCE_MS = 500;
@@ -53,6 +114,14 @@ const ProductListingScreen: React.FC = () => {
 
   const isFetchingRef = useRef(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [visible, setVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ModalItem | null>(null);
+
+  const onCloseModal = () => {
+    setVisible(false);
+    setSelectedItem(null);
+  };
 
   // ── Debounce search input ─────────────────────────────────────────────────────
   // When the user types, wait SEARCH_DEBOUNCE_MS before committing the value.
@@ -170,7 +239,12 @@ const ProductListingScreen: React.FC = () => {
         products={products}
         title={debouncedSearch ? 'Search Results' : category?.name ?? 'All Products'}
         onProductPress={(product) =>
-          navigation.navigate(Constants.SCREENS.PRODUCT_DETAIL, { product })
+        {
+          console.log('====================================');
+          console.log(JSON.stringify(product,null,2));
+          console.log('====================================');
+        // navigation.navigate(Constants.SCREENS.PRODUCT_DETAIL, { product })
+        }
         }
         onAddToCart={handleAddToCart}
         refeshProduct={() => fetchProducts(1, true, debouncedSearch)}
@@ -179,7 +253,12 @@ const ProductListingScreen: React.FC = () => {
         isLoadingMore={isLoadingMore}
         isLoading={isLoading}
       />
-
+      <FoodItemModal
+        visible={visible}
+        onClose={onCloseModal}
+        item={selectedItem || undefined}
+        addToCart={(id) => Alert.alert('Add to Cart', `Item ID: ${id} - Functionality yet to be implemented !`)}
+      />
       <CartFooter
         itemCount={cartSummary.itemCount}
         totalAmount={cartSummary.totalAmount}

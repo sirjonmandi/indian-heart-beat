@@ -36,12 +36,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 12,
   },
   description: {
     fontSize: 14,
-    color: Colors.textWhite,
+    color: Colors.black,
     lineHeight: 20,
   },
 });

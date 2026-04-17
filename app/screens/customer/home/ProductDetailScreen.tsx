@@ -185,7 +185,6 @@ const ProductDetailScreen: React.FC = () => {
         <>
           <ProductImageSection
             videoUri={productData?.videos && productData.videos[0]}
-            // videoUri='https://avtshare01.rz.tu-ilmenau.de/avt-vqdb-uhd-1/test_1/segments/bigbuck_bunny_8bit_2000kbps_720p_60.0fps_h264.mp4'
             productType={productData.category as any}
             images={productData.images}
           />
@@ -226,7 +225,7 @@ const ProductDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundSecondary,
   },
   content: {
     flex: 1,

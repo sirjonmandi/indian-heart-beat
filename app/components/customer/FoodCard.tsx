@@ -5,40 +5,51 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    ColorValue,
  } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Colors } from '@/styles/colors';
 interface FoodItem {
   id: number;
-  emoji: any;
+  shop_id: number;
+  variant_id: number;
   name: string;
-  rating: string;
-  reviews: string;
-  time: string;
-  difficulty: string;
-  store: string;
-  price: number;
+  sku: string;
+  barcode: string;
+  images: string[];
+  volume: number;
+  variant_name: string;
+  volume_unit: string;
+  alcoholContent: string;
+  originalPrice: string;
+  price: string;
+  stock_quantity: number;
+  inStock: boolean;
+  discount_percentage: string;
+  brand: string;
+  category: string;
+  brand_id: number;
+  category_id: number;
 }
-interface FoodCardProps extends FoodItem {
+interface FoodCardProps {
+  FoodItem: FoodItem;
   wide?: boolean;
   onPress?: (item: FoodItem) => void;
 }
 const { width } = Dimensions.get('window');
-const FoodCard = ({ id, emoji, name, rating, reviews, time, difficulty, store, price, wide, onPress }: FoodCardProps) => {
+const FoodCard = ({ FoodItem, wide, onPress }: FoodCardProps) => {
   return (
     <View style={[styles.foodCard, wide && { width: width * 0.7 }]}>
-        <ImageBackground source={emoji} style={{ flex: 1 }} imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+        <ImageBackground source={FoodItem.images && FoodItem.images.length > 0 ? { uri: FoodItem.images[0] } : require('../../../assets/images/image-not-found.png')} style={{ flex: 1 }} imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
           {/* Food Image */}
           <View style={styles.foodImageContainer}>
             {/* <View style={styles.foodImagePlaceholder}>
-              <Text style={styles.foodEmoji}>{emoji}</Text>
+              <Text style={styles.foodEmoji}>{FoodItem.emoji}</Text>
             </View> */}
             {/* Rating Badge */}
             <View style={styles.ratingBadge}>
               <Icon name='star' size={15} color='#FFD700' />
-              <Text style={styles.ratingText}> {rating} ({reviews})</Text>
+              <Text style={styles.ratingText}>{FoodItem.discount_percentage} %</Text>
             </View>
             {/* Favourite */}
             <TouchableOpacity style={styles.favButton}>
@@ -49,21 +60,22 @@ const FoodCard = ({ id, emoji, name, rating, reviews, time, difficulty, store, p
           {/* Card Footer */}
           <View style={styles.foodCardFooter}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.foodName}>{name}</Text>
+              <Text style={styles.foodName}>{FoodItem.name}</Text>
               <View style={styles.foodMeta}>
-                <Icon name='access-time' size={11} color={GRAY} />
-                <Text style={styles.metaText}> {time}</Text>
-                <Text style={styles.metaDot}>•</Text>
-                <Text style={styles.metaText}>{difficulty}</Text>
-                <Text style={styles.metaDot}>•</Text>
-                <Text style={styles.metaText}>By {store}</Text>
+                <Text style={styles.metaText}> {FoodItem.variant_name}</Text>
+                <View style={{flexDirection: 'row', gap: 6, alignItems: 'center'}}>
+                  <Text style={[styles.metaText,{ fontWeight: 'bold',color: Colors.success,fontSize: 16}]}>₹ {FoodItem.price}</Text>
+                  {FoodItem.originalPrice != FoodItem.price && (
+                    <Text style={[styles.metaText, { textDecorationLine: 'line-through', fontWeight:700 }]}>₹{FoodItem.originalPrice}</Text>
+                  )}
+                </View>
               </View>
             </View>
             <TouchableOpacity 
               style={styles.arrowButton}
               onPress={() => {
                 if (onPress) {
-                  onPress({ id, emoji, name, rating, reviews, time, difficulty, store, price });
+                  onPress(FoodItem);
                 }
               }}
               >
@@ -148,7 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    // height: 90,
+    height: 90,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 0,
@@ -161,8 +173,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   foodMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    // flexDirection: 'row',
+    // alignItems: 'center',
     flexWrap: 'wrap',
   },
   metaText: {

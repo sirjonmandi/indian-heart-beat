@@ -10,9 +10,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  Image
+  Image,
+  ImageBackground
 } from 'react-native';
-
+import Icon from 'react-native-vector-icons/MaterialIcons';
 const { width } = Dimensions.get('window');
 
 export interface Product {
@@ -80,59 +81,57 @@ const ProductCard: React.FC<ProductCardProps> = ({
       style={styles.productCard}
       onPress={() => onPress(product)}
     >
-      {/* Product Image */}
-      <View style={styles.productImageContainer}>
-        {renderProductImage()}
-        
-        {/* Discount Badge */}
-        {discountPercentage > 0 && (
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-          </View>
-        )}
-        
-        {/* Add Button */}
-        <TouchableOpacity 
-          style={[styles.addButton, !product.inStock && styles.addButtonDisabled]}
-          onPress={() => onAddToCart(product)}
-          disabled={!product.inStock}
-        >
-          <Text style={styles.addButtonText}>
-            {product.inStock ? '+' : 'OUT'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      
-      {/* Product Details */}
-      <View style={styles.productDetails}>
-        <Text style={styles.productName} numberOfLines={2}>
-          {product.name}
-        </Text>
-        <Text style={styles.productVolume}>{product.variant_name}</Text>
-        {/* <Text style={styles.productVolume}>{product.volume} {product.volume_unit}</Text> */}
-        
-        {/* Rating and Alcohol Content */}
-        <View style={styles.ratingRow}>
-          <View style={styles.ratingContainer}>
-            {/* <View style={styles.ratingBadge}>
-              <Text style={styles.ratingText}>★ {product.rating}</Text>
-            </View> */}
-          </View>
-          {/* <Text style={styles.alcoholContent}>{product.alcoholContent}% Alcohol</Text> */}
+      <ImageBackground source={
+        product.images && product.images.length > 0 ?
+        {uri:product.images?.[0]}
+        : require('../../../assets/images/app_logo.png')
+        } style={{ flex: 1 }} imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+        <View style={styles.productImageContainer}>
+          {/* Rating Badge */}
+          {discountPercentage > 0 && (
+            <View style={styles.ratingBadge}>
+              <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
+            </View>)}
+            {/* Favourite */}
+            <TouchableOpacity 
+            style={[styles.favButton, !product.inStock && styles.addButtonDisabled]}
+            onPress={() => onAddToCart(product)}
+            disabled={!product.inStock}
+            >
+              {product.inStock ?
+               <Icon name='add' size={17} style={{fontWeight: 'bold'}} color={Colors.success} />
+               :
+                  <Text style={styles.addButtonText}>
+                    {'OUT'}
+                  </Text>
+                }
+              
+            </TouchableOpacity>
         </View>
-        
-        {/* Price */}
-        <View style={styles.priceContainer}>
-          <Text style={styles.currentPrice}>₹{product.price}</Text>
-          {product.originalPrice && (
-            <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
-          )}
+        {/* Card Footer */}
+        <View style={styles.foodCardFooter}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.foodName}>{product.name}</Text>
+            <View style={styles.foodMeta}>
+              <Text style={styles.metaText}>{product.variant_name}</Text>
+              <View style={{flexDirection: 'row', gap: 6, alignItems: 'center'}}>
+                <Text style={[styles.metaText,{ fontWeight: 'bold',color: Colors.success,fontSize: 16}]}>₹ {product.price}</Text>
+                {product.originalPrice != product.price && (
+                  <Text style={[styles.metaText, { textDecorationLine: 'line-through', fontWeight:700 }]}>₹{product.originalPrice}</Text>
+                )}
+              </View>
+            </View>
+          </View>
         </View>
-      </View>
+      </ImageBackground>
     </TouchableOpacity>
   );
 };
-
+const ORANGE = Colors.primaryBg;
+const BG = '#FFFFFF';
+const WHITE = '#f7f6f9ff';
+const DARK = '#1A1A1A';
+const GRAY = '#888888';
 const styles = StyleSheet.create({
   productCard: {
     width: (width - 32) / 2 - 8,
@@ -148,9 +147,7 @@ const styles = StyleSheet.create({
   },
   productImageContainer: {
     height: 140,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    maxHeight: 140,
     position: 'relative',
   },
   bottleContainer: {
@@ -229,7 +226,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 4,
     lineHeight: 18,
   },
@@ -252,6 +249,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
+    marginTop: 8,
+    marginLeft: 8,
     alignSelf: 'flex-start',
   },
   ratingText: {
@@ -261,7 +260,7 @@ const styles = StyleSheet.create({
   },
   alcoholContent: {
     fontSize: 10,
-    color: Colors.textWhite,
+    color: Colors.black,
     textAlign: 'right',
   },
   priceContainer: {
@@ -271,7 +270,7 @@ const styles = StyleSheet.create({
   currentPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginRight: 8,
   },
   originalPrice: {
@@ -282,6 +281,68 @@ const styles = StyleSheet.create({
   previewImageStyle: {
     width: '100%',
     height: '100%',
+  },
+
+  foodCardFooter: {
+    backgroundColor: WHITE,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    height: 100,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  foodName: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: DARK,
+    marginBottom: 4,
+  },
+  foodMeta: {
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  metaText: {
+    fontSize: 11,
+    color: GRAY,
+  },
+  metaDot: {
+    fontSize: 11,
+    color: GRAY,
+    marginHorizontal: 3,
+  },
+  arrowButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: ORANGE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+  arrowIcon: {
+    color: WHITE,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  favButton: {
+    position: 'absolute',
+    top: 10,
+    right: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: WHITE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
   },
 });
 

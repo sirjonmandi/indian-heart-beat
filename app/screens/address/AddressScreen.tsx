@@ -58,7 +58,7 @@ const AddressScreen: React.FC = () => {
   const theme = {
     background: isDark ? Colors.background : Colors.background,
     cardBackground: isDark ? Colors.backgroundSecondary : Colors.backgroundSecondary,
-    text: isDark ? Colors.textWhite : Colors.textWhite,
+    text: isDark ? Colors.black : Colors.black,
     textSecondary: isDark ? '#666666' : '#666666',
     border: isDark ? Colors.backgroundSecondary : Colors.backgroundSecondary,
     shadow: isDark ? '#000000' : '#000000',

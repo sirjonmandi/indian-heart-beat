@@ -51,7 +51,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
 
   const imageSource =
     Array.isArray(item.image) && item.image.length > 0
-      ? item.image[0]
+      ? { uri: item.image[0] }
       : require('../../../assets/images/app_logo.png');
     // Array.isArray(item.image) && item.image.length > 0
     //   ? { uri: item.image[0] }
@@ -81,7 +81,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
           
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* price */}
-          <Text style={styles.price}>₹ {item.price.toFixed(2)}</Text>
+          <Text style={styles.price}>₹ {item.price}</Text>
 
           {/* stepper */}
           <View style={styles.stepper}>

@@ -57,10 +57,10 @@ const SizeSelectorSection: React.FC<SizeSelectorSectionProps> = ({
           </View>
           
           <TouchableOpacity 
-            style={styles.addButton}
+            style={[styles.addButton, selectedSize?.variant_id === size.variant_id && styles.addButtonSelected]}
             onPress={() => onAddToCart(size)}
           >
-            <Text style={styles.addButtonText}>ADD TO CART</Text>
+            <Text style={[styles.addButtonText, selectedSize?.variant_id === size.variant_id && styles.addButtonTextSelected]}>ADD TO CART</Text>
           </TouchableOpacity>
         </TouchableOpacity>
       ))}
@@ -89,6 +89,8 @@ const styles = StyleSheet.create({
   },
   sizeOptionSelected: {
     borderColor: '#4CAF50',
+    borderLeftWidth: 4,
+    borderRightWidth: 4,
     backgroundColor: Colors.backgroundSecondary,
   },
   sizeInfo: {
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
   sizeVolume: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textWhite,
+    color: Colors.black,
     marginBottom: 2,
   },
   sizeVolumeSelected: {
@@ -106,21 +108,28 @@ const styles = StyleSheet.create({
   sizePrice: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: Colors.textWhite,
+    color: Colors.black,
   },
   sizePriceSelected: {
     color: '#4CAF50',
   },
   addButton: {
-    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+    borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
   },
+  addButtonSelected: {
+    backgroundColor: '#4CAF50',
+  },
   addButtonText: {
-    color: '#FFFFFF',
+    color: '#4CAF50',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  addButtonTextSelected: {
+    color: '#FFFFFF',
   },
 });
 

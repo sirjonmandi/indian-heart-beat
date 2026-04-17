@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF3EE',
+    // backgroundColor: '#FFF3EE',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
@@ -283,13 +283,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: Platform.OS === 'ios' ? 28 : 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    // borderTopWidth: 1,
+    // borderTopColor: '#F0F0F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
-    elevation: 10,
+    // elevation: 10,
   },
   priceBox: {
     backgroundColor: ORANGE,
@@ -335,15 +335,21 @@ const BoxIcon = () => (
   </View>
 );
 
-const MessageIcon = () => (
-  <View style={styles.actionIconCircle}>
-    <Icon name="message" size={18} color="#1A1A1A" />
+const VegIcon = () => (
+  <View style={{flexDirection:'column', justifyContent:'center'}}>
+    <View style={{borderColor:Colors.success, borderWidth: 1, width: 25, height: 25, marginRight: 10, flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
+      <Icon name='circle' size={20} color={Colors.success} />
+    </View>
+    <Text style={{color: Colors.success}}>Veg</Text>
   </View>
 );
 
-const PhoneIcon = () => (
-  <View style={styles.actionIconCircle}>
-    <Icon name="call" size={18} color="#1A1A1A" />
+const NonVegIcon = () => (
+  <View style={{flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+    <View style={{borderColor:Colors.error, borderWidth: 1, width: 25, height: 25, marginRight: 10, flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
+      <Icon name='warning' size={20} color={Colors.error} />
+    </View>
+    <Text style={{color: Colors.error}}>Non-Veg</Text>
   </View>
 );
 
@@ -354,20 +360,27 @@ interface FoodItemModalProps {
   onClose: () => void;
   addToCart:(id: string) =>void;
   item?: {
-    id: string;
-    name: string;
-    restaurant: string;
-    rating: number;
-    price: number;
-    deliveryTime: string;
-    deliveryType: string;
-    description: string;
-    imageUri: string;
-    driver: {
+      id: number;
+      shop_id: number;
+      variant_id: number;
       name: string;
-      id: string;
-      avatarUri?: string;
-    };
+      sku: string;
+      desctiption: string;
+      barcode: string;
+      images: string[];
+      volume: number;
+      variant_name: string;
+      volume_unit: string;
+      alcoholContent: string;
+      originalPrice: string;
+      price: string;
+      stock_quantity: number;
+      inStock: boolean;
+      discount_percentage: string;
+      brand: string;
+      category: string;
+      brand_id: number;
+      category_id: number;
   };
 }
 
@@ -377,22 +390,7 @@ const FoodItemModal: React.FC<FoodItemModalProps> = ({
   visible,
   onClose,
   addToCart,
-  item = {
-    id: '1',
-    name: 'Taco Bell',
-    restaurant: "McDonald's",
-    rating: 4.7,
-    price: 25.0,
-    deliveryTime: '25 min',
-    deliveryType: 'Taco Bell',
-    description:
-      "From fresh bread to dairy, we've got all your groceries. Shop now, and we'll deliver them fast! Shop now, and we'll deliver them fast!",
-    imageUri: require('../../../assets/foods/indian.jpg'),
-    driver: {
-      name: 'Mitchel Santnar',
-      id: '13256626',
-    },
-  },
+  item
 }) => {
   const translateY = useRef(new Animated.Value(MODAL_HEIGHT)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -455,124 +453,89 @@ const FoodItemModal: React.FC<FoodItemModalProps> = ({
     }
   }, [visible]);
 
-  return (
-    <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
-      <StatusBar backgroundColor="rgba(0,0,0,0.5)" barStyle="light-content" />
+  if(item) return (
+  <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
+    {/* Backdrop */}
+    <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+      <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeModal} />
+    </Animated.View>
 
-      {/* Backdrop */}
-      <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeModal} />
-      </Animated.View>
+    {/* Bottom Sheet */}
+    <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}  {...panResponder.panHandlers}>
 
-      {/* Bottom Sheet */}
-      <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}  {...panResponder.panHandlers}>
-
-        {/* Hero Image */}
-        <View style={styles.heroContainer}>
-          <Image source={item.imageUri} style={styles.heroImage} resizeMode="cover" />
-          <View style={styles.heroGradient} />
-          <View style={styles.heroTopBar}>
-            <TouchableOpacity style={styles.backBtn} onPress={closeModal}>
-              <Icon name="keyboard-arrow-left" size={20} color="#1A1A1A" />
+      {/* Hero Image */}
+      <View style={styles.heroContainer}>
+        <Image source={ item && item.images.length > 0 ? { uri:item.images[0] } : require('../../../assets/images/image-not-found.png')} style={styles.heroImage} resizeMode="cover" />
+        <View style={styles.heroGradient} />
+        <View style={styles.heroTopBar}>
+          <TouchableOpacity style={styles.backBtn} onPress={closeModal}>
+            <Icon name="keyboard-arrow-left" size={20} color="#1A1A1A" />
+          </TouchableOpacity>
+          <View style={styles.heroActions}>
+            <TouchableOpacity style={styles.heroActionBtn}>
+              <Icon name="favorite-border" size={20} color="#1A1A1A" />
             </TouchableOpacity>
-            <View style={styles.heroActions}>
-              <TouchableOpacity style={styles.heroActionBtn}>
-                <Icon name="favorite-border" size={20} color="#1A1A1A" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.heroActionBtn}>
-                <Icon name="share" size={18} color="#1A1A1A" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.heroActionBtn}>
+              <Icon name="share" size={18} color="#1A1A1A" />
+            </TouchableOpacity>
           </View>
         </View>
+      </View>
 
-        {/* Content Area */}
-        <View style={styles.contentWrapper}>
-          <View style={styles.dragPill} />
+      {/* Content Area */}
+      <View style={styles.contentWrapper}>
+        <View style={styles.dragPill} />
 
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            {/* Title Row */}
-            <View style={styles.titleRow}>
-              <View>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.restaurantName}>By {item.restaurant}</Text>
-              </View>
-              <View style={styles.ratingBadge}>
-                <Text style={styles.ratingStar}>★</Text>
-                <Text style={styles.ratingText}>{item.rating}</Text>
-              </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Title Row */}
+          <View style={styles.titleRow}>
+            <View>
+              <Text style={styles.itemName}>{item.name}</Text>
+              {/* <Text style={styles.restaurantName}>By {item.restaurant}</Text> */}
             </View>
-
-            {/* Driver Row */}
-            {/* <View style={styles.driverRow}>
-              <View style={styles.driverLeft}>
-                <View style={styles.avatarCircle}>
-                  <Text style={styles.avatarEmoji}>👨‍🍳</Text>
-                </View>
-                <View style={styles.driverInfo}>
-                  <Text style={styles.driverName}>{item.driver.name}</Text>
-                  <Text style={styles.driverId}>ID: {item.driver.id}</Text>
-                </View>
-              </View>
-              <View style={styles.driverActions}>
-                <MessageIcon />
-                <PhoneIcon />
-              </View>
-            </View> */}
-
-            <View style={styles.divider} />
-
-            {/* Description */}
-            <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.description} numberOfLines={expanded ? undefined : 3}>
-              {item.description}
-            </Text>
-            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-              <Text style={styles.readMore}>{expanded ? 'Show less' : 'Read more'}</Text>
-            </TouchableOpacity>
-
-            <View style={styles.divider} />
-
-            {/* Delivery Info */}
-            <View style={styles.deliveryRow}>
-              <View style={styles.deliveryCard}>
-                <BikeIcon />
-
-                <View>
-                  <Text style={styles.deliveryLabel}>Delivery Time</Text>
-                  <Text style={styles.deliveryValue}>{item.deliveryTime}</Text>
-                </View>
-              </View>
-              <View style={styles.deliveryDivider} />
-              <View style={styles.deliveryCard}>
-                <BoxIcon />
-                <View>
-                  <Text style={styles.deliveryLabel}>Delivery Type</Text>
-                  <Text style={styles.deliveryValue}>{item.deliveryType}</Text>
-                </View>
-              </View>
-            </View>
-          </ScrollView>
-
-          {/* Add to Cart */}
-          <View style={styles.cartBar}>
-            <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-between', backgroundColor:ORANGE, borderRadius:50, paddingHorizontal:4, paddingVertical:4, width:'100%'}}>
-                <View style={styles.priceBox}>
-                    <Text style={styles.priceText}>₹ {item.price.toFixed(2)}</Text>
-                </View>
-                <TouchableOpacity 
-                style={styles.cartBtn} activeOpacity={0.85} onPress={() => addToCart(item.id)}>
-                    <Text style={styles.cartBtnText}>Add to Cart</Text>
-                </TouchableOpacity>
+            <View style={styles.ratingBadge}>
+              {item.isVeg ? <VegIcon /> : <NonVegIcon />}
             </View>
           </View>
+
+          <View style={styles.divider} />
+
+          {/* Description */}
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.description} numberOfLines={expanded ? undefined : 3}>
+            {item.description}
+          </Text>
+          <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+            <Text style={styles.readMore}>{expanded ? 'Show less' : 'Read more'}</Text>
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          {/* Delivery Info */}
+          <View style={styles.deliveryRow}>
+            
+          </View>
+        </ScrollView>
+
+        {/* Add to Cart */}
+        <View style={styles.cartBar}>
+          <View style={{flexDirection:'row',alignItems:'center', justifyContent:'space-between', backgroundColor:ORANGE, borderRadius:50, paddingHorizontal:4, paddingVertical:4, width:'100%'}}>
+              <View style={styles.priceBox}>
+                  <Text style={styles.priceText}>₹ {item.price}</Text>
+              </View>
+              <TouchableOpacity 
+              style={styles.cartBtn} activeOpacity={0.85} onPress={() => addToCart(item)}>
+                  <Text style={styles.cartBtnText}>Add to Cart</Text>
+              </TouchableOpacity>
+          </View>
         </View>
-      </Animated.View>
-    </Modal>
+      </View>
+    </Animated.View>
+  </Modal>
   );
 };
 

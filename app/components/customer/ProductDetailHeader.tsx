@@ -28,7 +28,7 @@ const ProductDetailHeader: React.FC<ProductDetailHeaderProps> = ({
 }) => {
   return (
     <LinearGradient
-      colors={[Colors.background, Colors.background]}
+      colors={[Colors.backgroundSecondary, Colors.backgroundSecondary]}
       style={styles.headerGradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -36,15 +36,15 @@ const ProductDetailHeader: React.FC<ProductDetailHeaderProps> = ({
       <SafeAreaView>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
-            <Icon name="arrow-back" size={20} color={Colors.textColor} />
+            <Icon name="keyboard-arrow-left" size={20} color={Colors.black} />
           </TouchableOpacity>
           
           <View style={styles.titleContainer}>
-            <Image 
+            {/* <Image 
               source={require('../../../assets/images/app_logo.png')} 
               style={styles.logoImage}
               resizeMode="contain"
-            />
+            /> */}
             {/* <Text style={styles.deliveryText}>Earliest in 30 MINS</Text>
             <View style={styles.locationRow}>
               <Text style={styles.locationText}>Home - house no 01</Text>
@@ -80,6 +80,13 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 4,
     marginRight: 8,
+    color: '#1A1A1A',
+    backgroundColor: '#f7f6f9ff',
+    borderRadius: 50,
+    height:40,
+    width:40,
+    justifyContent:'center',
+    alignItems:'center',
   },
   titleContainer: {
     flex: 1,
@@ -101,12 +108,19 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     padding: 4,
+    color: '#1A1A1A',
+    backgroundColor: '#f7f6f9ff',
+    borderRadius: 50,
+    height:40,
+    width:40,
+    justifyContent:'center',
+    alignItems:'center',
   },
   favoriteIcon: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: Colors.backgroundSecondary,
+    // backgroundColor: Colors.backgroundSecondary,
     justifyContent: 'center',
     alignItems: 'center',
   },
