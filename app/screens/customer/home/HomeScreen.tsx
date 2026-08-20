@@ -11,6 +11,7 @@ import {
   StatusBar,
   SafeAreaView,
   Alert,
+  FlatList,
 } from 'react-native';
 import { RefreshControl } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -26,6 +27,7 @@ import { useAlert } from '@/components/context/AlertContext';
 import { getHomePageInfo } from '@/store/slices/customerHomeSlice';
 import { NotificationRequest } from '@/components/common/NotificationRequest';
 import { Category } from '@/components/customer/CategoryGrid';
+import ImageCarousel from '@/components/customer/ImageCarousel';
 // Type definitions
 
 interface ModalItem {
@@ -235,13 +237,13 @@ export default function HomeScreen() {
 
         {/* ── Header ── */}
         <View style={styles.header}>
-          <View>
+          <TouchableOpacity onPress={()=>navigation.navigate(Constants.SCREENS.ADDRESSES)}>
             <Text style={styles.locationLabel}><Icon name='location-pin' size={15} color={DARK}/> Location</Text>
-            <TouchableOpacity style={styles.locationRow} onPress={()=>{navigation.navigate(Constants.SCREENS.ADDRESSES)}}>
+            <View style={styles.locationRow}>
               <Text style={styles.locationText}>{`${defaultAddress.type} - ${defaultAddress.addressLine1}`}</Text>
               <Icon name='expand-more' size={26} color={DARK} style={styles.chevron} />
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
           <View style={styles.cartWrapper}>
             <TouchableOpacity 
             style={styles.cartBtn}
@@ -299,12 +301,14 @@ export default function HomeScreen() {
         </View>
 
         {/* ── Categories ── */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
-        </View>
+        {categories && (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Categories</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow} contentContainerStyle={{ paddingHorizontal: 20 }}>
           {categories.map((cat, i) => (
@@ -313,12 +317,14 @@ export default function HomeScreen() {
         </ScrollView>
 
         {/* ── Picks For You ── */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Picks For You</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
-        </View>
+        {products && (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Picks For You</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAll}>See All</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16 }}>
           {products && products.map((p, i) => (

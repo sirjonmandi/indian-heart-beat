@@ -188,59 +188,57 @@ export const loginWithGoogle = createAsyncThunk(
 export const login = createAsyncThunk(
   'auth/login',
   async ({ 
-    email, 
+    phone, 
     password, 
     userType 
   }: { 
-    email: string; 
+    phone: string; 
     password: string; 
-    userType: string;
+    userType?: string;
   }) => {
-    console.log('🔐 Attempting login (DUMMY MODE) for:', email, 'as:', userType);
+    // console.log('🔐 Attempting login (DUMMY MODE) for:', email, 'as:', userType);
     
-    // DUMMY: Simulate login success
-    const dummyUser = createDummyUser(userType);
-    const dummyToken = 'dummy-token-12345';
-    const dummyRefreshToken = 'dummy-refresh-token-67890';
+    // // DUMMY: Simulate login success
+    // const dummyUser = createDummyUser(userType);
+    // const dummyToken = 'dummy-token-12345';
+    // const dummyRefreshToken = 'dummy-refresh-token-67890';
     
-    const dummyResponse = {
-      token: dummyToken,
-      refresh_token: dummyRefreshToken,
-      user: {
-        ...dummyUser,
-        user_type: userType,
-      }
-    };
+    // const dummyResponse = {
+    //   token: dummyToken,
+    //   refresh_token: dummyRefreshToken,
+    //   user: {
+    //     ...dummyUser,
+    //     user_type: userType,
+    //   }
+    // };
     
-    // Store auth data
-    await AsyncStorage.multiSet([
-      ['authToken', dummyResponse.token],
-      ['refreshToken', dummyResponse.refresh_token],
-      ['user', JSON.stringify(dummyResponse.user)],
-      ['userType', dummyResponse.user.user_type],
-    ]);
+    // // Store auth data
+    // await AsyncStorage.multiSet([
+    //   ['authToken', dummyResponse.token],
+    //   ['refreshToken', dummyResponse.refresh_token],
+    //   ['user', JSON.stringify(dummyResponse.user)],
+    //   ['userType', dummyResponse.user.user_type],
+    // ]);
     
-    console.log('✅ Login successful (DUMMY MODE) for:', dummyResponse.user.email);
-    return dummyResponse;
+    // console.log('✅ Login successful (DUMMY MODE) for:', dummyResponse.user.email);
+    // return dummyResponse;
 
-    /* TODO: Uncomment when API is ready
-    const response = await authAPI.login({ 
-      email, 
-      password, 
-      user_type: userType 
-    });
+    // TODO: Uncomment when API is ready
+    // const response = await authAPI.login({ 
+    //   phone, 
+    //   password, 
+    // });
+    // // Store auth data
+    // await AsyncStorage.multiSet([
+    //   ['authToken', response.data.token],
+    //   ['refreshToken', response.data.refresh_token],
+    //   ['user', JSON.stringify(response.data.user)],
+    //   ['userType', response.data.user.user_type],
+    // ]);
     
-    // Store auth data
-    await AsyncStorage.multiSet([
-      ['authToken', response.data.token],
-      ['refreshToken', response.data.refresh_token],
-      ['user', JSON.stringify(response.data.user)],
-      ['userType', response.data.user.user_type],
-    ]);
+    // console.log('✅ Login successful for:', response.data.user.email);
+    // return response.data;
     
-    console.log('✅ Login successful for:', response.data.user.email);
-    return response.data;
-    */
   }
 );
 

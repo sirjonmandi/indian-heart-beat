@@ -2,6 +2,7 @@ import apiClient from './apiClient';
 import { ApiResponse, AuthResponse, User } from './types';
 
 export interface LoginRequest {
+  phone: string;
   email: string;
   password: string;
   user_type: string;
@@ -158,7 +159,9 @@ export interface CityResponse {
 
 export const authAPI = {
   // Customer Authentication
-  login: (data: LoginRequest): Promise<ApiResponse<AuthResponse>> =>
+  // login: (data: LoginRequest): Promise<ApiResponse<AuthResponse>> =>
+  //   apiClient.post('/auth/customer/login', data),
+  login: (data: {phone: string, password: string}): Promise<ApiResponse<AuthResponse>> =>
     apiClient.post('/auth/customer/login', data),
 
   loginWithGoogle: (data: {token:string}): Promise<ApiResponse<AuthResponse>> =>

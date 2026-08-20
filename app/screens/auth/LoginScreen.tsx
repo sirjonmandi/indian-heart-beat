@@ -1,938 +1,405 @@
 import React, { useState, useEffect } from 'react';
-
 import {
-
   View,
-
   Text,
-
   StyleSheet,
-
   SafeAreaView,
-
   TouchableOpacity,
-
   TextInput,
-
   Alert,
-
   KeyboardAvoidingView,
-
   Platform,
-
   ScrollView,
-
   Keyboard,
-
   TouchableWithoutFeedback,
-
   Image,
-
+  StatusBar,
 } from 'react-native';
-
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-
 import { useDispatch } from 'react-redux';
-
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
-import LinearGradient from 'react-native-linear-gradient';
-
 import { Constants } from '../../utils/constants';
-
 import { authAPI } from '@services/api/authAPI';
-
 import { ApiResponse, ApiError } from '@/services/api/types';
-
-import { loginSuccess, logout, setAuthenticated, setUserType } from '@/store/slices/authSlice';
-
+import { loginSuccess, setAuthenticated, setUserType } from '@/store/slices/authSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import CustomAlert from '@/components/common/CustomAlert';
 import { Colors } from '@/styles/colors';
 
-import CustomAlert from '@/components/common/CustomAlert';
-
-// Types
-
 type RootStackParamList = {
-
   Login: undefined;
-
   Register: undefined;
-
   ForgotPassword: { phoneNumber: string };
-
   OTPVerification: { phoneNumber: string };
-
 };
-
-
 
 type LoginScreenNavigationProp = NavigationProp<RootStackParamList>;
 
-
-
 interface User {
-
   id: string;
-
-  firstName:string;
-
-  lastName:string;
-
+  firstName: string;
+  lastName: string;
   name: string;
-
   email: string;
-
   phone: string;
-
   dateOfBirth: string;
-
   status: string;
-
   ageVerificationStatus: string;
-
   isVerified: boolean;
-
   ageVerified: boolean;
-
   addresses?: any[];
-
   deviceTokens?: string;
-
   preferences: {
-
     notifications: boolean;
-
     darkMode: boolean;
-
     language: string;
-
     currency: string;
-
   };
-
 }
-
-
 
 interface ValidationResult {
-
   isValid: boolean;
-
   message?: string;
-
 }
 
-
-
 const LoginScreen: React.FC = () => {
-
   useEffect(() => {
-
     GoogleSignin.configure({
-
-      webClientId: Constants.GOOGLE_KEY, // from Google Cloud Console
-
+      webClientId: Constants.GOOGLE_KEY,
       offlineAccess: true,
-
     });
-
   }, []);
 
-
-
   const navigation = useNavigation<LoginScreenNavigationProp>();
-
   const dispatch = useDispatch();
-
-  
-
   const [phoneNumber, setPhoneNumber] = useState('');
-
   const [password, setPassword] = useState('');
-
   const [showPassword, setShowPassword] = useState(false);
-
   const [loading, setLoading] = useState(false);
-
   const [alertConfig, setAlertConfig] = useState({
     visible: false,
     title: '',
     message: '',
   });
 
-
-  // Validation functions
-
   const validatePhoneNumber = (phone: string): ValidationResult => {
-
-    if (!phone) {
-
-      return { isValid: false, message: 'Phone number is required' };
-
-    }
-
-    if (phone.length !== 10) {
-
-      return { isValid: false, message: 'Please enter a valid 10-digit phone number' };
-
-    }
-
-    if (!/^\d+$/.test(phone)) {
-
-      return { isValid: false, message: 'Phone number must contain only digits' };
-
-    }
-
+    if (!phone) return { isValid: false, message: 'Phone number is required' };
+    if (phone.length !== 10) return { isValid: false, message: 'Please enter a valid 10-digit phone number' };
+    if (!/^\d+$/.test(phone)) return { isValid: false, message: 'Phone number must contain only digits' };
     return { isValid: true };
-
   };
-
-
 
   const validatePassword = (pass: string): ValidationResult => {
-
-    if (!pass) {
-
-      return { isValid: false, message: 'Password is required' };
-
-    }
-
-    if (pass.length < 6) {
-
-      return { isValid: false, message: 'Password must be at least 6 characters' };
-
-    }
-
+    if (!pass) return { isValid: false, message: 'Password is required' };
+    if (pass.length < 6) return { isValid: false, message: 'Password must be at least 6 characters' };
     return { isValid: true };
-
   };
-
-
 
   const validateForm = (): ValidationResult => {
-
     const phoneValidation = validatePhoneNumber(phoneNumber);
-
-    if (!phoneValidation.isValid) {
-
-      return phoneValidation;
-
-    }
-
-
-
+    if (!phoneValidation.isValid) return phoneValidation;
     const passwordValidation = validatePassword(password);
-
-    if (!passwordValidation.isValid) {
-
-      return passwordValidation;
-
-    }
-
-
-
+    if (!passwordValidation.isValid) return passwordValidation;
     return { isValid: true };
-
   };
-
-
-
-  // Helper functions
 
   const createUserObject = (userData: any): User => ({
-
     id: userData.id,
-
     firstName: userData.first_name,
-
-    lastName:userData.last_name,
-
+    lastName: userData.last_name,
     name: userData.name,
-
     email: userData.email,
-
     phone: userData.phone,
-
-    dateOfBirth:userData.date_of_birth,
-
+    dateOfBirth: userData.date_of_birth,
     isVerified: Boolean(userData.phone_verified_at),
-
     status: userData.status,
-
-    ageVerificationStatus:userData.age_verification_status,
-
+    ageVerificationStatus: userData.age_verification_status,
     ageVerified: false,
-
     addresses: userData.addresses || [],
-
     deviceTokens: userData.device_tokens || '',
-
     preferences: {
-
       notifications: true,
-
       darkMode: false,
-
       language: 'en',
-
       currency: 'INR',
-
-    }
-
+    },
   });
 
-
-
   const saveAuthData = async (token: string, user: User, userType: string): Promise<void> => {
-
     try {
-
-      // console.log('================ handleSuccessfulLogin ====================');
-
-      // console.log('Login Success:', JSON.stringify(user, null, 2));
-
-      // console.log('====================================');
-
-      
-
       await AsyncStorage.multiSet([
-
         ['authToken', token],
-
         ['user', JSON.stringify(user)],
-
         ['userType', userType],
-
       ]);
-
     } catch (error) {
-
-      console.error('Failed to save auth data:', error);
-
       throw new Error('Failed to save authentication data');
-
     }
-
   };
-
-
 
   const handleSuccessfulLogin = async (data: any): Promise<void> => {
-
     const { token, user: userData } = data;
-
     const user = createUserObject(userData);
-
-    
-
     await saveAuthData(token, user, userData.user_type);
-
-    
-
-    // Update Redux store
-
     dispatch(setUserType(userData.user_type));
-
     dispatch(setAuthenticated(true));
-
     dispatch(loginSuccess({ user, token }));
-
   };
-
-
 
   const handleUnverifiedUser = (): void => {
-
-    navigation.navigate('OTPVerification', { 
-
-      phoneNumber: phoneNumber 
-
-    });
-
+    navigation.navigate('OTPVerification', { phoneNumber });
   };
-
-
 
   const getErrorMessage = (error: unknown): string => {
-
-    
-
     if (error && typeof error === 'object' && 'response' in error) {
-
       const apiError = error as ApiError;
-
       return (
-
-        (apiError.response?.data?.errors && 
-
-         Object.values(apiError.response.data.errors)?.[0]?.[0]) ||
-
-        apiError.response?.data?.message || apiError.errors ||
-
+        (apiError.response?.data?.errors &&
+          Object.values(apiError.response.data.errors)?.[0]?.[0]) ||
+        apiError.response?.data?.message ||
+        apiError.errors ||
         'Something went wrong. Please try again.'
-
       );
-
     }
-
-    
-
     return 'Something went wrong. Please try again.';
-
   };
 
-
+  const showError = (title: string, message: string) => {
+    setAlertConfig({ visible: true, title, message });
+  };
 
   const handleLogin = async (): Promise<void> => {
-
-    // Dismiss keyboard
-
     Keyboard.dismiss();
-
-    
-
-    // Validate form
-
     const validation = validateForm();
-
     if (!validation.isValid) {
-
-      // Alert.alert('Validation Error', validation.message);
-      let errorMessage = validation.message;
-      setAlertConfig({
-        visible: true,
-        title: 'Verification Failed',
-        message: errorMessage,
-      });
+      showError('Validation Error', validation.message ?? '');
       return;
-
     }
-
-
-
     setLoading(true);
-
-    
-
     try {
-
-      const response: ApiResponse = await authAPI.login({ 
-
-        phone: phoneNumber, 
-
-        password: password 
-
-      });
-
-
-
+      const response: ApiResponse = await authAPI.login({ phone: phoneNumber, password });
       const { data } = response.data;
-
-      
-
-      if (!response.data.success || !data?.token) {
-
-        throw new Error('Login failed. Please try again.');
-
-      }
-
-
-
-      // Check if phone is verified
-
-      if (!data.user?.phone_verified_at) {
-
-        handleUnverifiedUser();
-
-        return;
-
-      }
-
-
-
-      // console.log('=============== login response =====================');
-
-      // console.log(JSON.stringify(data,null,2));
-
-      // console.log('====================================');
-
+      if (!response.data.success || !data?.token) throw new Error('Login failed. Please try again.');
+      if (!data.user?.phone_verified_at) { handleUnverifiedUser(); return; }
       await handleSuccessfulLogin(data);
-
-      
-
     } catch (error) {
-
-      console.error('Login error:', error);
-
-      
-
-      // Handle specific error cases
-
       if (error && typeof error === 'object' && 'response' in error) {
-
         const apiError = error as ApiError;
-
-        
-
-        // If user exists but not verified (422 status)
-
-        if (apiError.response?.status === 422) {
-
-          handleUnverifiedUser();
-
-          return;
-
-        }
-
+        if (apiError.response?.status === 422) { handleUnverifiedUser(); return; }
       }
-
-      
-
-      const errorMessage = getErrorMessage(error);
-
-      // Alert.alert('Login Failed', errorMessage);
-
-      setAlertConfig({
-        visible: true,
-        title: 'Verification Failed',
-        message: errorMessage,
-      });
-
+      showError('Login Failed', getErrorMessage(error));
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
-
-
-
-
-  // const handleGoogleLogin = async () => {
-
-  //   try {
-
-  //     setLoading(true);
-
-      
-
-  //     await GoogleSignin.hasPlayServices();
-
-      
-
-  //     const userInfo = await GoogleSignin.signIn();
-
-
-
-  //     // Different versions/platforms may return token in different places.
-
-  //     // Prefer `idToken` (top-level) as returned by `@react-native-google-signin/google-signin`.
-
-  //     const idToken = (userInfo as any).idToken || (userInfo as any)?.data?.idToken || (userInfo as any)?.serverAuthCode || (userInfo as any)?.accessToken;
-
-
-
-  //     if (!idToken) {
-
-  //       console.warn('Google sign-in returned no token', userInfo);
-
-  //       // throw new Error('Token not found from Google Sign-In.');
-
-  //       Alert.alert('Login Failed', 'Token not found from Google Sign-In.');
-
-  //     }
-
-
-
-  //     // send idToken (or serverAuthCode/accessToken fallback) to your backend
-
-  //     const response = await authAPI.loginWithGoogle({ token: idToken });
-
-
-
-  //     const { data } = response.data;
-
-
-
-  //     if (!response.data.success || !data?.token) {
-
-  //       console.error('Backend rejected Google login', response.data);
-
-  //       // throw new Error('Login failed. Please try again.');
-
-  //       Alert.alert('login Error','Failed to verify in backend');
-
-  //     }
-
-
-
-  //     await handleSuccessfulLogin(data);
-
-  //   } catch (error) {
-
-  //     console.log('Google login error:', JSON.stringify(error, null, 2));
-
-  //     const errorMessage = getErrorMessage(error);
-
-  //     Alert.alert('Login Failed', errorMessage);
-
-  //   } finally {
-
-  //     setLoading(false);
-
-  //   }
-
-  // };
-
-
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken =
+        (userInfo as any).idToken ||
+        (userInfo as any)?.data?.idToken ||
+        (userInfo as any)?.serverAuthCode ||
+        (userInfo as any)?.accessToken;
+      if (!idToken) { Alert.alert('Login Failed', 'Token not found from Google Sign-In.'); return; }
+      const response = await authAPI.loginWithGoogle({ token: idToken });
+      const { data } = response.data;
+      if (!response.data.success || !data?.token) { Alert.alert('Login Error', 'Failed to verify in backend'); return; }
+      await handleSuccessfulLogin(data);
+    } catch (error) {
+      Alert.alert('Login Failed', getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleForgotPassword = (): void => {
-
     const phoneValidation = validatePhoneNumber(phoneNumber);
-
     if (!phoneValidation.isValid) {
-
-      // Alert.alert('Enter Phone Number', 'Please enter your phone number first');
-      setAlertConfig({
-        visible: true,
-        title: 'Enter Phone Number',
-        message: 'Please enter your phone number first',
-      });
+      showError('Enter Phone Number', 'Please enter your phone number first');
       return;
-
     }
-
-    // navigation.navigate(Constants.SCREENS.RESET_PASSWORD);
-
-    // Alert.alert('Forgot Password','This Feature is under development!');
-
-    navigation.navigate(Constants.SCREENS.RESET_PASSWORD_OTP, {
-
-      phoneNumber: `${phoneNumber}`
-
-    });
-
+    navigation.navigate(Constants.SCREENS.RESET_PASSWORD_OTP, { phoneNumber: `${phoneNumber}` });
   };
-
-
 
   const handlePhoneNumberChange = (text: string): void => {
-
-    // Only allow numbers and limit to 10 digits
-
-    const numericText = text.replace(/[^0-9]/g, '').slice(0, 10);
-
-    setPhoneNumber(numericText);
-
+    setPhoneNumber(text.replace(/[^0-9]/g, '').slice(0, 10));
   };
 
-
-
   const isFormValid = phoneNumber.length === 10 && password.length >= 6;
-
-
 
   return (
     <>
       <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      <LinearGradient
-
-        colors={[Colors.background, Colors.background]}
-
-        style={styles.gradient}
-
-        start={{ x: 0, y: 0 }}
-
-        end={{ x: 1, y: 1 }}
-
-      >
-
-        <KeyboardAvoidingView 
-
-          style={styles.keyboardAvoidingView}
-
+        <KeyboardAvoidingView
+          style={styles.flex}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-
         >
-
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-
-            <ScrollView 
-
-              contentContainerStyle={styles.scrollViewContent}
-
+            <ScrollView
+              contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
-
               keyboardShouldPersistTaps="handled"
-
             >
+              {/* Decorative blobs */}
+              <View style={styles.blobTopRight} />
+              <View style={styles.blobTopRightSmall} />
+              <View style={styles.blobBottomLeft} />
 
-              {/* Header */}
-
-              <View style={styles.header}>
-
-                <View style={styles.logoContainer}>
-                  <Image 
-                    source={require('../../../assets/images/app_logo.png')} 
-                    style={styles.logoImage}
-                    resizeMode="contain"
-                  />
-                  {/* <Text style={styles.logoEmoji}>🍺</Text>
-                  <Text style={styles.appName}>BeerGo</Text> */}
-
+              {/* Logo row */}
+              <View style={styles.logoRow}>
+                <View style={styles.logoMark}>
+                  <Icon name="restaurant" size={18} color="#fff" />
                 </View>
-
-                <Text style={styles.welcomeText}>Welcome Back!</Text>
-
-                <Text style={styles.subtitleText}>Sign in to continue</Text>
-
+                <Text style={styles.logoName}>Indian Heart Beat</Text>
               </View>
 
+              {/* Status pill */}
+              <View style={styles.pill}>
+                <View style={styles.pillDot} />
+                <Text style={styles.pillText}>Secure sign-in</Text>
+              </View>
 
+              {/* Headline */}
+              <Text style={styles.headline}>Welcome back 👋</Text>
+              <Text style={styles.subline}>Sign in to your account to continue</Text>
 
-              {/* Form */}
+              {/* Feature chips */}
+              <View style={styles.chipsRow}>
+                {['Fast Delivery', 'Track Orders', 'Exclusive Deals'].map(chip => (
+                  <View key={chip} style={styles.chip}>
+                    <Text style={styles.chipText}>{chip}</Text>
+                  </View>
+                ))}
+              </View>
 
-              <View style={styles.formContainer}>
-
-                {/* Phone Number Input */}
-
-                <View style={styles.inputContainer}>
-
-                  <Icon name="phone" size={20} color="#666" style={styles.inputIcon} />
-
-                  <TextInput
-
-                    style={styles.input}
-
-                    placeholder="Enter phone number"
-
-                    placeholderTextColor="#999"
-
-                    value={phoneNumber}
-
-                    onChangeText={handlePhoneNumberChange}
-
-                    keyboardType="numeric"
-
-                    maxLength={10}
-
-                    returnKeyType="next"
-
-                    autoCapitalize="none"
-
-                    autoCorrect={false}
-
-                    textContentType="telephoneNumber"
-
-                    editable={!loading}
-
-                  />
-
+              {/* Phone field */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>PHONE NUMBER</Text>
+                <View style={styles.inputWrap}>
+                  <Icon name="phone" size={16} color="#999" style={styles.fieldIcon} />
                   <Text style={styles.phonePrefix}>+91</Text>
-
-                </View>
-
-
-
-                {/* Password Input */}
-
-                <View style={styles.inputContainer}>
-
-                  <Icon name="lock" size={20} color="#666" style={styles.inputIcon} />
-
                   <TextInput
-
-                    style={styles.input}
-
-                    placeholder="Enter password"
-
-                    placeholderTextColor="#999"
-
-                    value={password}
-
-                    onChangeText={setPassword}
-
-                    secureTextEntry={!showPassword}
-
-                    returnKeyType="done"
-
-                    onSubmitEditing={handleLogin}
-
+                    style={[styles.input, styles.phoneInput]}
+                    placeholder="Enter phone number"
+                    placeholderTextColor="#c4c4c4"
+                    value={phoneNumber}
+                    onChangeText={handlePhoneNumberChange}
+                    keyboardType="numeric"
+                    maxLength={10}
+                    returnKeyType="next"
                     autoCapitalize="none"
-
                     autoCorrect={false}
-
-                    textContentType="password"
-
+                    textContentType="telephoneNumber"
                     editable={!loading}
-
                   />
-
-                  <TouchableOpacity   
-
-                    onPress={() => setShowPassword(!showPassword)}
-
-                    style={styles.eyeIcon}
-
-                    activeOpacity={0.7}
-
-                    disabled={loading}
-
-                  >
-
-                    <Icon 
-
-                      name={showPassword ? 'visibility-off' : 'visibility'} 
-
-                      size={20} 
-
-                      color="#666" 
-
-                    />
-
-                  </TouchableOpacity>
-
                 </View>
-
-
-
-                {/* Forgot Password */}
-
-                <TouchableOpacity 
-
-                  style={styles.forgotPassword}
-
-                  onPress={handleForgotPassword}
-
-                  activeOpacity={0.7}
-
-                  disabled={loading}
-
-                >
-
-                  <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-
-                </TouchableOpacity>
-
-
-
-                {/* Login Button */}
-
-                <TouchableOpacity 
-
-                  style={[
-
-                    styles.loginButton, 
-
-                    (!isFormValid || loading) && styles.disabledButton
-
-                  ]}
-
-                  onPress={handleLogin}
-
-                  disabled={!isFormValid || loading}
-
-                  activeOpacity={0.8}
-
-                >
-
-                  <Text style={styles.loginButtonText}>
-
-                    {loading ? 'Signing In...' : 'Login'}
-
-                  </Text>
-
-                </TouchableOpacity>
-
-
-
-                {/* OR Divider */}
-
-                {/* <View style={styles.orContainer}>
-
-                  <View style={styles.orLine} />
-
-                  <Text style={styles.orText}>OR</Text>
-
-                  <View style={styles.orLine} />
-
-                </View> */}
-
-
-
-                {/* Google Login Button */}
-
-                {/* <TouchableOpacity 
-
-                  style={[styles.googleButton, loading && styles.disabledButton]} 
-
-                  onPress={handleGoogleLogin}
-
-                  activeOpacity={0.8}
-
-                  disabled={loading}
-
-                >
-
-                  <Icon name="login" size={20} color="#2C2C2C" style={styles.googleIcon} />
-
-                  <Text style={styles.googleButtonText}>Continue with Google</Text>
-
-                </TouchableOpacity> */}
-
               </View>
 
+              {/* Password field */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>PASSWORD</Text>
+                <View style={styles.inputWrap}>
+                  <Icon name="lock" size={16} color="#999" style={styles.fieldIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter password"
+                    placeholderTextColor="#c4c4c4"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    returnKeyType="done"
+                    onSubmitEditing={handleLogin}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    textContentType="password"
+                    editable={!loading}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                    style={styles.eyeBtn}
+                    activeOpacity={0.7}
+                    disabled={loading}
+                  >
+                    <Icon
+                      name={showPassword ? 'visibility-off' : 'visibility'}
+                      size={18}
+                      color="#999"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
 
+              {/* Forgot password */}
+              <TouchableOpacity
+                style={styles.forgotRow}
+                onPress={handleForgotPassword}
+                activeOpacity={0.7}
+                disabled={loading}
+              >
+                <Text style={styles.forgotText}>Forgot password?</Text>
+              </TouchableOpacity>
+
+              {/* Sign In button */}
+              <TouchableOpacity
+                style={[styles.btnPrimary, (!isFormValid || loading) && styles.btnDisabled]}
+                onPress={handleLogin}
+                disabled={!isFormValid || loading}
+                activeOpacity={0.85}
+              >
+                <Icon name="login" size={16} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.btnPrimaryText}>
+                  {loading ? 'Signing In...' : 'Sign In'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* OR divider */}
+              <View style={styles.orRow}>
+                <View style={styles.orLine} />
+                <Text style={styles.orText}>OR</Text>
+                <View style={styles.orLine} />
+              </View>
+
+              {/* Google button */}
+              <TouchableOpacity
+                style={[styles.btnGoogle, loading && styles.btnDisabled]}
+                onPress={handleGoogleLogin}
+                activeOpacity={0.85}
+                disabled={loading}
+              >
+                <Icon name="login" size={18} color="#444" style={{ marginRight: 10 }} />
+                <Text style={styles.btnGoogleText}>Continue with Google</Text>
+              </TouchableOpacity>
 
               {/* Footer */}
-
-              {/* <View style={styles.footer}>
-
+              <View style={styles.footerRow}>
                 <Text style={styles.footerText}>
-
                   Don't have an account?{' '}
-
-                  <Text 
-
-                    style={[
-
-                      styles.signUpText,
-
-                      loading && styles.disabledText
-
-                    ]}
-
+                  <Text
+                    style={[styles.footerLink, loading && { opacity: 0.4 }]}
                     onPress={loading ? undefined : () => navigation.navigate('Register')}
-
                   >
-
                     Sign Up
-
                   </Text>
-
                 </Text>
+              </View>
 
-              </View> */}
-
+              {/* Security note */}
+              {/* <View style={styles.securityRow}>
+                <Icon name="shield" size={12} color="#ccc" style={{ marginRight: 5 }} />
+                <Text style={styles.securityText}>256-bit encrypted · your data is safe</Text>
+              </View> */}   
             </ScrollView>
-
           </TouchableWithoutFeedback>
-
         </KeyboardAvoidingView>
+      </SafeAreaView>
 
-      </LinearGradient>
-
-    </SafeAreaView>
-    <View>
-      {/* Your other components */}
       <CustomAlert
         visible={alertConfig.visible}
         title={alertConfig.title}
@@ -940,379 +407,284 @@ const LoginScreen: React.FC = () => {
         buttons={[
           {
             text: 'OK',
-            color: '#ba181b',
+            color: '#1a1a1a',
             textColor: '#FFFFFF',
             onPress: () => setAlertConfig({ ...alertConfig, visible: false }),
           },
         ]}
         onDismiss={() => setAlertConfig({ ...alertConfig, visible: false })}
       />
-    </View>
     </>
   );
-
 };
 
-
-
 const styles = StyleSheet.create({
-
   container: {
-
     flex: 1,
-
-    backgroundColor: Colors.background,
-
+    backgroundColor: '#ffffff',
   },
-
-  gradient: {
-
+  flex: {
     flex: 1,
-
   },
-
-  keyboardAvoidingView: {
-
-    flex: 1,
-
-  },
-
-  scrollViewContent: {
-
+  scrollContent: {
     flexGrow: 1,
-
-    justifyContent: 'center',
-
-    paddingHorizontal: 30,
-
-    paddingVertical: 20,
-
+    paddingHorizontal: 28,
+    paddingTop: 24,
+    paddingBottom: 32,
   },
 
-  header: {
-
-    alignItems: 'center',
-
-    marginBottom: 40,
-
-  },
-
-  logoContainer: {
-
-    alignItems: 'center',
-
-    marginBottom: 20,
-
-  },
-
-  logoEmoji: {
-
-    fontSize: 60,
-
-    marginBottom: 10,
-
-  },
-
-  appName: {
-
-    fontSize: 32,
-
-    fontWeight: 'bold',
-
-    color: '#2C2C2C',
-
-    textShadowColor: 'rgba(0, 0, 0, 0.1)',
-
-    textShadowOffset: { width: 1, height: 1 },
-
-    textShadowRadius: 2,
-
-  },
-
-  welcomeText: {
-
-    fontSize: 24,
-
-    fontWeight: 'bold',
-
-    color: Colors.textWhite,
-
-    marginBottom: 8,
-
-  },
-
-  subtitleText: {
-
-    fontSize: 16,
-
-    color: Colors.textWhite,
-
-    opacity: 0.8,
-
-  },
-
-  formContainer: {
-
-    marginBottom: 30,
-
-  },
-
-  inputContainer: {
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    backgroundColor: Colors.backgroundSecondary,
-
-    borderRadius: 12,
-
-    paddingHorizontal: 15,
-
-    paddingVertical: 15,
-
-    marginBottom: 15,
-
-    shadowColor: '#000',
-
-    shadowOffset: { width: 0, height: 2 },
-
-    shadowOpacity: 0.1,
-
-    shadowRadius: 4,
-
-    elevation: 3,
-
-    borderWidth: 1,
-
-    borderColor: 'rgba(0, 0, 0, 0.05)',
-
-  },
-
-  inputIcon: {
-
-    marginRight: 12,
-
-  },
-
-  input: {
-
-    flex: 1,
-
-    fontSize: 16,
-
-    color: Colors.textColor,
-
-    paddingVertical: 0,
-
-    minHeight: 20,
-
-  },
-
-  phonePrefix: {
-
-    fontSize: 16,
-
-    color: '#666',
-
-    marginLeft: 8,
-
-  },
-
-  eyeIcon: {
-
-    padding: 8,
-
-    marginRight: -8,
-
-  },
-
-  forgotPassword: {
-
-    alignSelf: 'flex-end',
-
-    marginBottom: 25,
-
-    padding: 5,
-
-  },
-
-  forgotPasswordText: {
-
-    color: Colors.textColor,
-
-    fontSize: 14,
-
-    fontWeight: '500',
-
-    textDecorationLine: 'underline',
-
-  },
-
-  loginButton: {
-
-    backgroundColor: Colors.primary,
-
-    paddingVertical: 16,
-
-    borderRadius: 12,
-
-    alignItems: 'center',
-
-    marginBottom: 20,
-
-    shadowColor: '#000',
-
-    shadowOffset: { width: 0, height: 4 },
-
-    shadowOpacity: 0.2,
-
-    shadowRadius: 8,
-
-    elevation: 5,
-
-  },
-
-  disabledButton: {
-
-    backgroundColor: Colors.primary,
-
+  // --- Decorative blobs ---
+  blobTopRight: {
+    position: 'absolute',
+    top: -60,
+    right: -60,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#f5f0ff',
     opacity: 0.6,
-
   },
-
-  loginButtonText: {
-
-    color: '#FFFFFF',
-
-    fontSize: 18,
-
-    fontWeight: 'bold',
-
+  blobTopRightSmall: {
+    position: 'absolute',
+    top: 40,
+    right: 30,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#e8f4fd',
+    opacity: 0.7,
   },
-
-  orContainer: {
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    marginVertical: 20,
-
-  },
-
-  orLine: {
-
-    flex: 1,
-
-    height: 1,
-
-    backgroundColor: '#2C2C2C',
-
-    opacity: 0.3,
-
-  },
-
-  orText: {
-
-    marginHorizontal: 15,
-
-    color: '#2C2C2C',
-
-    fontSize: 14,
-
-    fontWeight: '500',
-
-  },
-
-  googleButton: {
-
-    backgroundColor: '#FFFFFF',
-
-    paddingVertical: 16,
-
-    borderRadius: 12,
-
-    alignItems: 'center',
-
-    flexDirection: 'row',
-
-    justifyContent: 'center',
-
-    borderWidth: 2,
-
-    borderColor: '#2C2C2C',
-
-    shadowColor: '#000',
-
-    shadowOffset: { width: 0, height: 2 },
-
-    shadowOpacity: 0.1,
-
-    shadowRadius: 4,
-
-    elevation: 3,
-
-  },
-
-  googleIcon: {
-
-    marginRight: 8,
-
-  },
-
-  googleButtonText: {
-
-    color: '#2C2C2C',
-
-    fontSize: 16,
-
-    fontWeight: 'bold',
-
-  },
-
-  footer: {
-
-    alignItems: 'center',
-
-    marginTop: 20,
-
-    paddingBottom: 20,
-
-  },
-
-  footerText: {
-
-    fontSize: 14,
-
-    color: '#2C2C2C',
-
-  },
-
-  signUpText: {
-
-    color: '#2C2C2C',
-
-    fontWeight: 'bold',
-
-    textDecorationLine: 'underline',
-
-  },
-
-  disabledText: {
-
+  blobBottomLeft: {
+    position: 'absolute',
+    bottom: 0,
+    left: -40,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: '#fff5f0',
     opacity: 0.5,
-
   },
 
-  logoImage:{
-    width: 150,
-    height: 150,
+  // --- Logo ---
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 28,
+  },
+  logoMark: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: Colors.primaryBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoName: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    letterSpacing: -0.3,
+  },
+
+  // --- Status pill ---
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    marginBottom: 14,
+    gap: 6,
+  },
+  pillDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#22c55e',
+  },
+  pillText: {
+    fontSize: 11,
+    color: '#888',
+    fontWeight: '500',
+  },
+
+  // --- Headline ---
+  headline: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#0f0f0f',
+    letterSpacing: -0.5,
+    lineHeight: 32,
+    marginBottom: 6,
+  },
+  subline: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 18,
+    letterSpacing: 0.1,
+  },
+
+  // --- Feature chips ---
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 24,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#ebebeb',
+    borderRadius: 20,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+  },
+  chipText: {
+    fontSize: 11,
+    color: '#777',
+    fontWeight: '400',
+  },
+
+  // --- Fields ---
+  fieldGroup: {
+    marginBottom: 14,
+  },
+  fieldLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#aaa',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fafafa',
+    borderWidth: 1.5,
+    borderColor: '#ebebeb',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    height: 50,
+  },
+  fieldIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    color: '#1a1a1a',
+    paddingVertical: 0,
+  },
+  phonePrefix: {
+    fontSize: 14,
+    color: '#aaa',
+    fontWeight: '500',
+    marginRight: 6,
+  },
+  phoneInput: {
+    // extra left spacing handled by phonePrefix
+  },
+  eyeBtn: {
+    padding: 6,
+    marginRight: -4,
+  },
+
+  // --- Forgot ---
+  forgotRow: {
+    alignSelf: 'flex-end',
+    marginBottom: 22,
+    marginTop: 4,
+  },
+  forgotText: {
+    fontSize: 13,
+    color: '#555',
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+  },
+
+  // --- Primary button ---
+  btnPrimary: {
+    height: 52,
+    backgroundColor: Colors.primaryBg,
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  btnDisabled: {
+    opacity: 0.45,
+  },
+  btnPrimaryText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+
+  // --- OR divider ---
+  orRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 12,
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#efefef',
+  },
+  orText: {
+    fontSize: 12,
+    color: '#bbb',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+
+  // --- Google button ---
+  btnGoogle: {
+    height: 50,
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#ebebeb',
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+  },
+  btnGoogleText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#1a1a1a',
+  },
+
+  // --- Footer ---
+  footerRow: {
+    alignItems: 'center',
     marginBottom: 16,
-  }
+  },
+  footerText: {
+    fontSize: 13,
+    color: '#aaa',
+  },
+  footerLink: {
+    color: '#1a1a1a',
+    fontWeight: '700',
+  },
 
+  // --- Security note ---
+  securityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  securityText: {
+    fontSize: 11,
+    color: '#bbb',
+  },
 });
-
-
 
 export default LoginScreen;

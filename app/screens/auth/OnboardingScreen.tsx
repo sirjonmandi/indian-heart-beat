@@ -112,8 +112,8 @@ const OnboardingScreen: React.FC = () => {
     }
   };
   const handleGetStarted = () => {
-    setUserAuthData();
-    // navigation.replace(Constants.SCREENS.LOGIN);
+    // setUserAuthData();
+    navigation.replace(Constants.SCREENS.LOGIN);
   };
 
   const chips = ['🍛 Biryani','🍕 Pizza', '🍜 Noodles', '🍔 Burgers', '🥗 Salads'];

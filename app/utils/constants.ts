@@ -6,7 +6,7 @@ export const Constants = {
   
   // App Configuration
   APP_NAME: 'Indian Heart Beat',
-  APP_VERSION: "1.0.0",
+  APP_VERSION: "1.0.1",
   
   // Delivery Configuration
   MIN_ORDER_AMOUNT: 299,

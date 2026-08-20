@@ -56,7 +56,7 @@ const AddressScreen: React.FC = () => {
   const dispatch = useDispatch();
   // Dynamic theme colors
   const theme = {
-    background: isDark ? Colors.background : Colors.background,
+    background: isDark ? Colors.backgroundSecondary : Colors.backgroundSecondary,
     cardBackground: isDark ? Colors.backgroundSecondary : Colors.backgroundSecondary,
     text: isDark ? Colors.black : Colors.black,
     textSecondary: isDark ? '#666666' : '#666666',
@@ -212,84 +212,117 @@ const AddressScreen: React.FC = () => {
     }
   };
 
-  const renderAddressItem = ({ item, index }: { item: addresses; index: number }) => (
-    <View style={[
-      styles.addressCard,
-      { backgroundColor: theme.cardBackground, borderColor: item.isDefault ? theme.success : theme.border }
-    ]}>
-      {/* Address Header */}
-      <View style={styles.addressHeader}>
-        <View style={styles.addressTypeContainer}>
-          <View style={[styles.iconContainer, { backgroundColor: theme.success + '20' }]}>
-            <Icon
-              name={getAddressIcon(item.type)}
-              size={24}
-              color={theme.success}
-            />
-          </View>
-          <View style={styles.typeAndBadge}>
-            <Text style={[styles.addressType, { color: theme.text }]}>
-              {item.type?.toUpperCase()}
+  const renderAddressItem = ({ item, index }: { item: addresses; index: number }) => {
+    const isDefault = item.isDefault === 1 || item.isDefault === true;
+  
+    const getAddressIconName = (type: string) => {
+      switch (type?.toLowerCase()) {
+        case 'home':   return 'home';
+        case 'office': return 'work';
+        default:       return 'location-on';
+      }
+    };
+  
+    const addressLine = [
+      item.addressLine1,
+      item.addressLine2,
+      item.city,
+      item.state,
+      item.pincode,
+    ]
+      .filter(Boolean)
+      .join(', ');
+  
+    return (
+      <View style={[cardStyles.card, isDefault && cardStyles.cardDefault]}>
+        {/* Map strip — shown only for the default address */}
+        {/* {isDefault && (
+          <View style={cardStyles.mapStrip}>
+            <View style={cardStyles.mapRingOuter} />
+            <View style={cardStyles.mapRingInner} />
+            <View style={cardStyles.mapDot} />
+            <Text style={cardStyles.mapLabel} numberOfLines={1}>
+              {item.city ?? 'Location pinned'}
             </Text>
-            {item.isDefault === 1 && (
-              <View style={[styles.defaultBadge, { backgroundColor: theme.success }]}>
-                <Icon name="star" size={14} color="#fff" />
-                <Text style={styles.defaultText}>Default</Text>
-              </View>
-            )}
           </View>
+        )} */}
+  
+        {/* Card top row */}
+        <View style={cardStyles.cardTop}>
+          <View style={cardStyles.typeRow}>
+            <View style={[cardStyles.typeIcon, isDefault && cardStyles.typeIconDefault]}>
+              <Icon
+                name={getAddressIconName(item.type)}
+                size={18}
+                color={isDefault ? '#3B6D11' : '#777'}
+              />
+            </View>
+            <Text style={cardStyles.typeLabel}>{item.type?.toUpperCase()}</Text>
+          </View>
+  
+          {isDefault && (
+            <View style={cardStyles.defaultBadge}>
+              <Icon name="star" size={11} color="#3B6D11" />
+              <Text style={cardStyles.defaultBadgeText}>Default</Text>
+            </View>
+          )}
+        </View>
+  
+        {/* Body */}
+        <View style={cardStyles.cardBody}>
+          {item.name && (
+            <Text style={cardStyles.nameText} numberOfLines={1}>
+              {item.name}
+            </Text>
+          )}
+          {item.phone && (
+            <View style={cardStyles.phoneRow}>
+              <Icon name="phone" size={13} color="#aaa" />
+              <Text style={cardStyles.phoneText}>{item.phone}</Text>
+            </View>
+          )}
+          <Text style={cardStyles.addressText} numberOfLines={2}>
+            {addressLine}
+          </Text>
+        </View>
+  
+        {/* Footer actions */}
+        <View style={cardStyles.cardFooter}>
+          {/* Edit */}
+          <TouchableOpacity
+            style={[cardStyles.btn, cardStyles.btnEdit]}
+            onPress={() => navigation.navigate(Constants.SCREENS.ADD_ADDRESS, { item })}
+            activeOpacity={0.85}
+          >
+            <Icon name="edit" size={13} color="#fff" />
+            <Text style={cardStyles.btnEditText}>Edit</Text>
+          </TouchableOpacity>
+  
+          {/* Set Default — hidden when already default */}
+          {!isDefault && (
+            <TouchableOpacity
+              style={[cardStyles.btn, cardStyles.btnSetDefault]}
+              onPress={() => setAsDefault(item.id)}
+              activeOpacity={0.85}
+            >
+              <Icon name="star-border" size={13} color="#555" />
+              <Text style={cardStyles.btnSetDefaultText}>Set as default</Text>
+            </TouchableOpacity>
+          )}
+  
+          {/* Delete — pushed to right */}
+          <TouchableOpacity
+            style={[cardStyles.btn, cardStyles.btnDelete]}
+            onPress={() => deleteAddress(item.id)}
+            activeOpacity={0.85}
+          >
+            <Icon name="delete-outline" size={16} color="#e24b4a" />
+          </TouchableOpacity>
         </View>
       </View>
+    );
+  };
 
-      {/* Address Details */}
-      <View style={styles.addressDetails}>
-        {item.name && (
-          <Text style={[styles.addressName, { color: theme.text }]} numberOfLines={1}>
-            {item.name}
-          </Text>
-        )}
-        {item.phone && (
-          <View style={styles.phoneContainer}>
-            <Icon name="phone" size={16} color={theme.textSecondary} />
-            <Text style={[styles.addressPhone, { color: theme.textSecondary }]}>
-              {item.phone}
-            </Text>
-          </View>
-        )}
-        <Text style={[styles.addressText, { color: theme.textSecondary }]} numberOfLines={3}>
-          {`${item.addressLine1}, ${item.addressLine2 ? `${item.addressLine2}, ` : ''} ${item.city}, ${item.state} ${item.pincode}`}
-        </Text>
-      </View>
-
-      {/* Action Buttons */}
-      <View style={styles.addressActions}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.editButton]}
-          onPress={() => navigation.navigate(Constants.SCREENS.ADD_ADDRESS, { item })}
-        >
-          <Icon name="edit" size={16} color="#fff" />
-          <Text style={styles.actionButtonText}>Edit</Text>
-        </TouchableOpacity>
-
-        {!item.isDefault && (
-          <TouchableOpacity
-            style={[styles.actionButton, styles.defaultButton, { backgroundColor: theme.primary }]}
-            onPress={() => setAsDefault(item.id)}
-          >
-            <Icon name="star-border" size={16} color="#fff" />
-            <Text style={styles.actionButtonText}>Set Default</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={() => deleteAddress(item.id)}
-        >
-          <Icon name="delete-outline" size={16} color="#fff" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
@@ -313,22 +346,21 @@ const AddressScreen: React.FC = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      {/* <Header 
-      title="Delivery Addresses"
-      showBack
-      onBackPress={() => navigation.goBack()} 
-      /> */}
       <LinearGradient
         colors={[theme.background, theme.background]}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color={Colors.textColor} />
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Icon name="keyboard-arrow-left" size={24} color={Colors.black} />
         </TouchableOpacity>
+
         <Text style={styles.headerTitle}>Delivery Addresses</Text>
-        <View style={{ width: 24 }} />
+
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate(Constants.SCREENS.PROFILE)}>
+          <Icon name="person" size={20} color={Colors.black} />
+        </TouchableOpacity>
       </LinearGradient>
 
       {/* Content */}
@@ -385,7 +417,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.textColor,
+    color: Colors.black,
     textAlign: 'center',
   },
   addressList: {
@@ -554,6 +586,198 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+  },
+  backButton: {
+    padding: 4,
+    marginRight: 8,
+    color: '#1A1A1A',
+    backgroundColor: '#f7f6f9ff',
+    borderRadius: 50,
+    height:40,
+    width:40,
+    justifyContent:'center',
+    alignItems:'center',
+  },
+});
+
+const cardStyles = StyleSheet.create({
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#ebebeb',
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  cardDefault: {
+    borderColor: '#22c55e',
+  },
+ 
+  // ── Map strip (default card only) ──
+  mapStrip: {
+    height: 52,
+    backgroundColor: '#eaf3de',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  mapDot: {
+    position: 'absolute',
+    left: 24,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#22c55e',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  mapRingInner: {
+    position: 'absolute',
+    left: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#22c55e',
+    opacity: 0.4,
+  },
+  mapRingOuter: {
+    position: 'absolute',
+    left: 2,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#22c55e',
+    opacity: 0.2,
+  },
+  mapLabel: {
+    fontSize: 12,
+    color: '#3B6D11',
+    fontWeight: '500',
+    marginLeft: 56,
+  },
+ 
+  // ── Card top ──
+  cardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 0,
+  },
+  typeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  typeIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  typeIconDefault: {
+    backgroundColor: '#eaf3de',
+  },
+  typeLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#aaa',
+    letterSpacing: 1,
+  },
+  defaultBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#eaf3de',
+    borderRadius: 20,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+  },
+  defaultBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#3B6D11',
+  },
+ 
+  // ── Card body ──
+  cardBody: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 14,
+  },
+  nameText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  phoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  phoneText: {
+    fontSize: 13,
+    color: '#888',
+  },
+  addressText: {
+    fontSize: 13,
+    color: '#999',
+    lineHeight: 19,
+  },
+ 
+  // ── Card footer / actions ──
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f5f5f5',
+  },
+  btn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    gap: 5,
+  },
+  btnEdit: {
+    backgroundColor: '#1a1a1a',
+  },
+  btnEditText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  btnSetDefault: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  btnSetDefaultText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#555',
+  },
+  btnDelete: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1.5,
+    borderColor: '#f5f5f5',
+    backgroundColor: '#fff',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    marginLeft: 'auto',
   },
 });
 

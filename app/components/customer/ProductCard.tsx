@@ -64,13 +64,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     if (isSpecialBottle) {
       return (
         <View style={[styles.bottleContainer, {height:140 ,width: 140}]}>
-          <Image source={require('../../../assets/images/app_logo.png')} style={styles.previewImageStyle} resizeMode="cover"/>
+          <Image source={require('../../../assets/images/image-not-found.png')} style={styles.previewImageStyle} resizeMode="cover"/>
         </View>
       );
     } else {
       return (
         <View style={[styles.bottleContainer, {height:140 ,width: 140}]}>
-          <Image source={require('../../../assets/images/app_logo.png')} style={styles.previewImageStyle} resizeMode="cover"/>
+          <Image source={require('../../../assets/images/image-not-found.png')} style={styles.previewImageStyle} resizeMode="cover"/>
         </View>
       );
     }
@@ -84,7 +84,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <ImageBackground source={
         product.images && product.images.length > 0 ?
         {uri:product.images?.[0]}
-        : require('../../../assets/images/app_logo.png')
+        : require('../../../assets/images/image-not-found.png')
         } style={{ flex: 1 }} imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
         <View style={styles.productImageContainer}>
           {/* Rating Badge */}

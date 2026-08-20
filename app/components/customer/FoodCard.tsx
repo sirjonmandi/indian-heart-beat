@@ -47,10 +47,11 @@ const FoodCard = ({ FoodItem, wide, onPress }: FoodCardProps) => {
               <Text style={styles.foodEmoji}>{FoodItem.emoji}</Text>
             </View> */}
             {/* Rating Badge */}
-            <View style={styles.ratingBadge}>
-              <Icon name='star' size={15} color='#FFD700' />
-              <Text style={styles.ratingText}>{FoodItem.discount_percentage} %</Text>
-            </View>
+            {FoodItem.discount_percentage && parseFloat(FoodItem.discount_percentage) > 0 && (
+              <View style={styles.ratingBadge}>
+                <Text style={styles.ratingText}>{FoodItem.discount_percentage} %</Text>
+              </View>
+            )}
             {/* Favourite */}
             <TouchableOpacity style={styles.favButton}>
               <Icon name='favorite-border' size={17} color='#FF4B6E' />
@@ -123,8 +124,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     left: 12,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderRadius: 20,
+    backgroundColor: Colors.success,
+    borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 4,
     flexDirection: 'row',
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 12,
     fontWeight: '700',
-    color: DARK,
+    color: Colors.white,
   },
   favButton: {
     position: 'absolute',
